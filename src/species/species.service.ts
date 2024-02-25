@@ -75,7 +75,7 @@ export class SpeciesService {
         this.speciesRepository.save(newSpecies)
     }
 
-    deleteSpecies(id: number) {
-        this.speciesRepository.delete(id)
+    async deleteSpecies(idDelete: number) {
+        this.speciesRepository.delete(idDelete)
     }
 }

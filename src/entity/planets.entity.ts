@@ -35,9 +35,13 @@ export class Planets {
     @Column()
     population: number
 
-    @ManyToMany(() => People, (people) => people.homeworld)
+    @ManyToMany(() => People, (people) => people.homeworld, {
+		onDelete: 'CASCADE'
+	})
     residents: People[]
 
-	@ManyToMany(() => Films, (films) => films.planets)
+	@ManyToMany(() => Films, (films) => films.planets, {
+		onDelete: 'CASCADE'
+	})
     films: Films[]
 }

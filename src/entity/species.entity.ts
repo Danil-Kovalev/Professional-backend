@@ -40,9 +40,13 @@ export class Species {
     @Column()
     language: string
 
-    @ManyToMany(() => People, (people) => people.species)
+    @ManyToMany(() => People, (people) => people.species, {
+		onDelete: 'CASCADE'
+	})
 	people: People[]
 
-	@ManyToMany(() => Films, (films) => films.species)
+	@ManyToMany(() => Films, (films) => films.species, {
+		onDelete: 'CASCADE'
+	})
 	films: Films[]
 }
