@@ -39,45 +39,40 @@ export class SpeciesService {
         return new PageDto(data, pageMetaDto);
     }
 
-    async createSpecies(essence: CreateSpeciesDto) {
+    async createIndexSpecies(): Promise<number> {
         let itemCount: number = await this.speciesRepository.createQueryBuilder().getCount();
-        const species = this.speciesRepository.create(essence)
+        return itemCount + 1;
+    }
+
+    async updateSpecies(idSpecies: number, createSpecies: CreateSpeciesDto) {
+        const species = this.speciesRepository.create(createSpecies)
 
         const planets = await this.planetsRepository.findOne({
             where: {
-                id: essence.planetsIds
+                id: createSpecies.planetsIds
             }
         })
 
         species.planets = planets
-        species.people = essence.peopleIds.map(id => ({...new People(), id}))
-        species.films = essence.filmsIds.map(id => ({...new Films(), id}))
+        species.people = createSpecies.peopleIds.map(id => ({ ...new People(), id }))
+        species.films = createSpecies.filmsIds.map(id => ({ ...new Films(), id }))
 
         let newSpecies = {
-            id: itemCount + 1,
-            name: essence.name,
-            classification: essence.classification,
-            designation: essence.designation,
-            average_heigh: essence.average_heigh,
-            skin_colors: essence.skin_colors,
-            hair_colors: essence.hair_colors,
-            eye_colors: essence.eye_colors,
-            average_lifespan: essence.average_lifespan,
-            planets_id: essence.planetsIds,
-            language: essence.language,
+            id: idSpecies,
+            name: createSpecies.name,
+            classification: createSpecies.classification,
+            designation: createSpecies.designation,
+            average_heigh: createSpecies.average_heigh,
+            skin_colors: createSpecies.skin_colors,
+            hair_colors: createSpecies.hair_colors,
+            eye_colors: createSpecies.eye_colors,
+            average_lifespan: createSpecies.average_lifespan,
+            planets_id: createSpecies.planetsIds,
+            language: createSpecies.language,
             people: species.people,
             films: species.films
         }
         this.speciesRepository.save(newSpecies)
-    }
-
-    updateSpecies(id: number, editSpecies: SpeciesDto) {
-        const queryBuilder = this.speciesRepository.createQueryBuilder();
-        queryBuilder
-            .update()
-            .set(editSpecies)
-            .where("id = :idSpecies", { idSpecies: id })
-            .execute();
     }
 
     deleteSpecies(id: number) {

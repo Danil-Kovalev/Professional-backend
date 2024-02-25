@@ -50,12 +50,16 @@ export class CreatePlanetsDto {
     population: number
 
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     residentsIds: number[]
 
 	@Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     filmsIds: number[]
 }

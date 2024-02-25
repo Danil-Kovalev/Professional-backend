@@ -34,22 +34,37 @@ export class CreateFilmsDto {
     release_date: Date
 
     @Type(() => Array<number>)
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     charactersIds: number[]
 
     @Type(() => Array<number>)
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
 	starshipsIds: number[]
 
     @Type(() => Array<number>)
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
 	vehiclesIds: number[]
 
     @Type(() => Array<number>)
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
 	speciesIds: number[]
 	
     @Type(() => Array<number>)
+    @IsNumber({}, {
+        each: true
+    })
     @IsString()
     @ApiProperty()
     planetsIds: number[]

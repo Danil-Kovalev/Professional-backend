@@ -40,56 +40,30 @@ export class PeoplesService {
         return new PageDto(data, pageMetaDto);
     }
 
-    async createPeople(editPeople: CreatePeopleDto) {
-        const queryBuilder = this.peopleRepository.createQueryBuilder();
-        let itemCount: number = await queryBuilder.getCount();
-        const peoples = this.peopleRepository.create(editPeople)
-
-        peoples.homeworld = editPeople.homeworldIds.map(id => ({...new Planets(), id}))
-        peoples.films = editPeople.filmsIds.map(id => ({...new Films(), id}))
-        peoples.species = editPeople.speciesIds.map(id => ({...new Species(), id}))
-        peoples.vehicles = editPeople.vehiclesIds.map(id => ({...new Vehicles(), id}))
-        peoples.starships = editPeople.starshipsIds.map(id => ({...new Starships(), id}))
-
-        let newPeople = {
-            id: itemCount + 1,
-            name: editPeople.name,
-            height: editPeople.height,
-            mass: editPeople.mass,
-            hair_color: editPeople.hair_color,
-            skin_color: editPeople.skin_color,
-            eye_color: editPeople.eye_color,
-            birth_year: editPeople.birth_year,
-            gender: editPeople.gender,
-            homeworld: peoples.homeworld,
-            films: peoples.films,
-            species: peoples.species,
-            vehicles: peoples.vehicles,
-            starships: peoples.starships
-        }
-
-        this.peopleRepository.save(newPeople);
+    async createIndexPeople(): Promise<number> {
+        let itemCount: number = await this.peopleRepository.createQueryBuilder().getCount();
+        return itemCount + 1;
     }
 
-    updatePeople(idPeople: number, editPeople: CreatePeopleDto) {
-        const peoples = this.peopleRepository.create(editPeople)
+    updatePeople(idPeople: number, createPeople: CreatePeopleDto) {
+        const peoples = this.peopleRepository.create(createPeople)
 
-        peoples.homeworld = editPeople.homeworldIds.map(id => ({...new Planets(), id}));
-        peoples.films = editPeople.filmsIds.map(id => ({...new Films(), id}))
-        peoples.species = editPeople.speciesIds.map(id => ({...new Species(), id}))
-        peoples.vehicles = editPeople.vehiclesIds.map(id => ({...new Vehicles(), id}))
-        peoples.starships = editPeople.starshipsIds.map(id => ({...new Starships(), id}))
+        peoples.homeworld = createPeople.homeworldIds.map(id => ({...new Planets(), id}));
+        peoples.films = createPeople.filmsIds.map(id => ({...new Films(), id}))
+        peoples.species = createPeople.speciesIds.map(id => ({...new Species(), id}))
+        peoples.vehicles = createPeople.vehiclesIds.map(id => ({...new Vehicles(), id}))
+        peoples.starships = createPeople.starshipsIds.map(id => ({...new Starships(), id}))
 
         let newPeople = {
             id: idPeople,
-            name: editPeople.name,
-            height: editPeople.height,
-            mass: editPeople.mass,
-            hair_color: editPeople.hair_color,
-            skin_color: editPeople.skin_color,
-            eye_color: editPeople.eye_color,
-            birth_year: editPeople.birth_year,
-            gender: editPeople.gender,
+            name: createPeople.name,
+            height: createPeople.height,
+            mass: createPeople.mass,
+            hair_color: createPeople.hair_color,
+            skin_color: createPeople.skin_color,
+            eye_color: createPeople.eye_color,
+            birth_year: createPeople.birth_year,
+            gender: createPeople.gender,
             homeworld: peoples.homeworld,
             films: peoples.films,
             species: peoples.species,

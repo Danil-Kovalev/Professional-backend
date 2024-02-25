@@ -27,12 +27,13 @@ export class FilmsController {
   @Post()
   @ApiResponse({ status: 201, description: 'The films has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  createFilms(@Body() newFilms: CreateFilmsDto) {
-    this.filmsService.createFilms(newFilms);
+  async createFilms(@Body() newFilms: CreateFilmsDto) {
+    let indexNewFilms: number = await this.filmsService.createIndexFilms()
+    this.filmsService.updateFilms(indexNewFilms, newFilms);
   }
 
   @Put(':id')
-  updateFilms(@Param('id', ParseIntPipe) id: number, @Body() editPeople: FilmsDto) {
+  updateFilms(@Param('id', ParseIntPipe) id: number, @Body() editPeople: CreateFilmsDto) {
     this.filmsService.updateFilms(id, editPeople);
   }
 

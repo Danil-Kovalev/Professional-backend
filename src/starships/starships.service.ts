@@ -33,40 +33,35 @@ export class StarshipsService {
         return new PageDto(data, pageMetaDto);
     }
 
-    async createStarships(essence: CreateStarshipsDto) {
+    async createIndexStarships(): Promise<number> {
         let itemCount: number = await this.starshipsRepository.createQueryBuilder().getCount()
-        const starships = this.starshipsRepository.create(essence)
+        return itemCount + 1;
+    }
 
-        starships.pilots = essence.pilotsIds.map(id => ({...new People(), id}))
-        starships.films = essence.filmsIds.map(id => ({...new Films(), id}))
+    updateStarships(idStarships: number, createStarships: CreateStarshipsDto) {
+        const starships = this.starshipsRepository.create(createStarships)
+
+        starships.pilots = createStarships.pilotsIds.map(id => ({...new People(), id}))
+        starships.films = createStarships.filmsIds.map(id => ({...new Films(), id}))
 
         let newStarships = {
-            id: itemCount + 1,
-            name: essence.name,
-            model: essence.model,
-            manufacturer: essence.manufacturer,
-            cost_in_credits: essence.cost_in_credits,
-            length: essence.length,
-            max_atmosphering_speed: essence.max_atmosphering_speed,
-            crew: essence.crew,
-            passengers: essence.passengers,
-            hyperdrive_rating: essence.hyperdrive_rating,
-            MGLT: essence.MGLT,
-            starship_class: essence.starship_class,
+            id: idStarships,
+            name: createStarships.name,
+            model: createStarships.model,
+            manufacturer: createStarships.manufacturer,
+            cost_in_credits: createStarships.cost_in_credits,
+            length: createStarships.length,
+            max_atmosphering_speed: createStarships.max_atmosphering_speed,
+            crew: createStarships.crew,
+            passengers: createStarships.passengers,
+            hyperdrive_rating: createStarships.hyperdrive_rating,
+            MGLT: createStarships.MGLT,
+            starship_class: createStarships.starship_class,
             pilots: starships.pilots,
             films: starships.films
         }
 
         this.starshipsRepository.save(newStarships);
-    }
-
-    updateStarships(id: number, editStarships: StarShipsDto) {
-        const queryBuilder = this.starshipsRepository.createQueryBuilder();
-        queryBuilder
-            .update()
-            .set(editStarships)
-            .where("id = :idStarships", { idStarships: id })
-            .execute();
     }
 
     deleteStarships(id: number) {

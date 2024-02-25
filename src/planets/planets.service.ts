@@ -34,39 +34,33 @@ export class PlanetsService {
         return new PageDto(data, pageMetaDto);
     }
 
-    async createPlanet(essence: CreatePlanetsDto) {
-        const queryBuilder = this.planetsRepository.createQueryBuilder();
-        let itemCount: number = await queryBuilder.getCount();
-        const planets = this.planetsRepository.create(essence)
+    async createIndexPlanet(): Promise<number> {
+        let itemCount: number = await this.planetsRepository.createQueryBuilder().getCount();
+        return itemCount + 1;
+    }
 
-        planets.residents = essence.residentsIds.map(id => ({...new People(), id}))
-        planets.films = essence.filmsIds.map(id => ({...new Films(), id}))
+    updatePlanets(idPlanets: number, createPlanets: CreatePlanetsDto) {
+        const planets = this.planetsRepository.create(createPlanets)
+
+        planets.residents = createPlanets.residentsIds.map(id => ({...new People(), id}))
+        planets.films = createPlanets.filmsIds.map(id => ({...new Films(), id}))
 
         let newPlanet = {
-            id: itemCount + 1,
-            name: essence.name,
-            rotation_period: essence.rotation_period,
-            orbital_period: essence.orbital_period,
-            diameter: essence.diameter,
-            climate: essence.climate,
-            gravity: essence.gravity,
-            terrain: essence.terrain,
-            surface_water: essence.surface_water,
-            population: essence.population,
+            id: idPlanets,
+            name: createPlanets.name,
+            rotation_period: createPlanets.rotation_period,
+            orbital_period: createPlanets.orbital_period,
+            diameter: createPlanets.diameter,
+            climate: createPlanets.climate,
+            gravity: createPlanets.gravity,
+            terrain: createPlanets.terrain,
+            surface_water: createPlanets.surface_water,
+            population: createPlanets.population,
             residents: planets.residents,
             films: planets.films
         }
         
         this.planetsRepository.save(newPlanet)
-    }
-
-    updatePlanets(id: number, editPlanets: PlanetsDto) {
-        const queryBuilder = this.planetsRepository.createQueryBuilder();
-        queryBuilder
-            .update()
-            .set(editPlanets)
-            .where("id = :idPlanets", { idPlanets: id })
-            .execute();
     }
 
     deletePlanets(id: number) {

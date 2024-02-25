@@ -28,12 +28,13 @@ export class SpeciesController {
   @Post()
   @ApiResponse({ status: 201, description: 'The species has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  createSpecies(@Body() newSpecies: CreateSpeciesDto) {
-    this.speciesService.createSpecies(newSpecies)
+  async createSpecies(@Body() newSpecies: CreateSpeciesDto) {
+    let indexNewSpecies: number = await this.speciesService.createIndexSpecies();
+    this.speciesService.updateSpecies(indexNewSpecies, newSpecies);
   }
 
   @Put(':id')
-  updateSpecies(@Param('id', ParseIntPipe) id: number, @Body() editSpecies: SpeciesDto) {
+  updateSpecies(@Param('id', ParseIntPipe) id: number, @Body() editSpecies: CreateSpeciesDto) {
     this.speciesService.updateSpecies(id, editSpecies)
   }
 

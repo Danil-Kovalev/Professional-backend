@@ -27,12 +27,13 @@ export class PlanetsController {
   @Post()
   @ApiResponse({ status: 201, description: 'The planets has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  createPlanets(@Body() newPlanets: CreatePlanetsDto) {
-    this.planetsService.createPlanet(newPlanets)
+  async createPlanets(@Body() newPlanets: CreatePlanetsDto) {
+    let indexNewPlanets: number = await this.planetsService.createIndexPlanet()
+    this.planetsService.updatePlanets(indexNewPlanets, newPlanets)
   }
 
   @Put(':id')
-  updatePlanets(@Param('id', ParseIntPipe) id: number, @Body() editPlanets: PlanetsDto) {
+  updatePlanets(@Param('id', ParseIntPipe) id: number, @Body() editPlanets: CreatePlanetsDto) {
    this.planetsService.updatePlanets(id, editPlanets)
   }
 

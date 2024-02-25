@@ -39,24 +39,28 @@ export class FilmsService {
         return new PageDto(data, pageMetaDto);
     }
 
-    async createFilms(essence: CreateFilmsDto) {
+    async createIndexFilms(): Promise<number> {
         let itemCount: number = await this.filmsRepository.createQueryBuilder().getCount();
-        const films = this.filmsRepository.create(essence)
+        return itemCount + 1;
+    }
 
-        films.characters = essence.charactersIds.map(id => ({...new People(), id}))
-        films.starships = essence.starshipsIds.map(id => ({...new Starships(), id}))
-        films.vehicles = essence.vehiclesIds.map(id => ({...new Vehicles(), id}))
-        films.species = essence.speciesIds.map(id => ({...new Species(), id}))
-        films.planets = essence.planetsIds.map(id => ({...new Planets(), id}))
+    updateFilms(idFilms: number, createFilms: CreateFilmsDto) {
+        const films = this.filmsRepository.create(createFilms)
+
+        films.characters = createFilms.charactersIds.map(id => ({...new People(), id}))
+        films.starships = createFilms.starshipsIds.map(id => ({...new Starships(), id}))
+        films.vehicles = createFilms.vehiclesIds.map(id => ({...new Vehicles(), id}))
+        films.species = createFilms.speciesIds.map(id => ({...new Species(), id}))
+        films.planets = createFilms.planetsIds.map(id => ({...new Planets(), id}))
 
         let newFilms = {
-            id: itemCount + 1,
-            title: essence.title,
-            episode_id: essence.episode_id,
-            opening_crawl: essence.opening_crawl,
-            director: essence.director,
-            producer: essence.producer,
-            release_date: essence.release_date,
+            id: idFilms,
+            title: createFilms.title,
+            episode_id: createFilms.episode_id,
+            opening_crawl: createFilms.opening_crawl,
+            director: createFilms.director,
+            producer: createFilms.producer,
+            release_date: createFilms.release_date,
             characters: films.characters,
             starships: films.starships,
             vehicles: films.vehicles,
@@ -65,15 +69,6 @@ export class FilmsService {
         }
 
         this.filmsRepository.save(newFilms)
-    }
-
-    updateFilms(id: number, editFilms: FilmsDto) {
-        const queryBuilder = this.filmsRepository.createQueryBuilder();
-        queryBuilder
-            .update()
-            .set(editFilms)
-            .where("id = :idPeople", { idPeople: id })
-            .execute();
     }
 
     deleteFilms(id: number) {

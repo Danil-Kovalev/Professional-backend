@@ -44,27 +44,37 @@ export class CreatePeopleDto {
     gender: string
 
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     homeworldIds: number[]
-    
+
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     filmsIds: number[]
 
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     speciesIds: number[]
 
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     vehiclesIds: number[]
 
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
     starshipsIds: number[]
 

@@ -27,12 +27,13 @@ export class StarshipsController {
   @Post()
   @ApiResponse({ status: 201, description: 'The starships has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  createStarships(@Body() newStarships: CreateStarshipsDto) {
-    this.starshipsService.createStarships(newStarships)
+  async createStarships(@Body() newStarships: CreateStarshipsDto) {
+    let indexNewStarships: number = await this.starshipsService.createIndexStarships();
+    this.starshipsService.updateStarships(indexNewStarships, newStarships)
   }
 
   @Put(':id')
-  updateStarships(@Param('id', ParseIntPipe) id: number, @Body() editStarships: StarShipsDto) {
+  updateStarships(@Param('id', ParseIntPipe) id: number, @Body() editStarships: CreateStarshipsDto) {
     this.starshipsService.updateStarships(id, editStarships);
   }
 

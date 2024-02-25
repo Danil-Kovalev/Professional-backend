@@ -54,12 +54,16 @@ export class CreateVehiclesDto {
     consumables: string
 
     @Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
 	pilotsIds: number[]
 
 	@Type(() => Array<number>)
-    @IsArray()
+    @IsNumber({}, {
+        each: true
+    })
     @ApiProperty()
 	filmsIds: number[]
 }

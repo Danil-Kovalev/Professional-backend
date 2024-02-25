@@ -27,8 +27,9 @@ export class PeoplesController {
   @Post()
   @ApiResponse({ status: 201, description: 'The people has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  createPeoples(@Body() newPeople: CreatePeopleDto) {
-    this.peoplesService.createPeople(newPeople);
+  async createPeoples(@Body() newPeople: CreatePeopleDto) {
+    let indexNewPeople: number = await this.peoplesService.createIndexPeople();
+    this.peoplesService.updatePeople(indexNewPeople, newPeople);
   }
 
   @Put(':id')
