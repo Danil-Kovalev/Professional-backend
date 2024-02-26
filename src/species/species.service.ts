@@ -56,7 +56,7 @@ export class SpeciesService {
         species.planets = planets
         species.people = createSpecies.peopleIds.map(id => ({ ...new People(), id }))
         species.films = createSpecies.filmsIds.map(id => ({ ...new Films(), id }))
-
+    
         let newSpecies = {
             id: idSpecies,
             name: createSpecies.name,
@@ -67,8 +67,8 @@ export class SpeciesService {
             hair_colors: createSpecies.hair_colors,
             eye_colors: createSpecies.eye_colors,
             average_lifespan: createSpecies.average_lifespan,
-            planets_id: createSpecies.planetsIds,
             language: createSpecies.language,
+            planets,
             people: species.people,
             films: species.films
         }
