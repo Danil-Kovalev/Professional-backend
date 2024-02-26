@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Films } from "./films.entity";
 import { People } from "./people.entity";
+import { Images } from "./images.entity";
 
 @Entity()
 export class Vehicles {
@@ -47,4 +48,7 @@ export class Vehicles {
 		onDelete: 'CASCADE'
 	})
 	films: Films[]
+
+	@OneToMany(() => Images, (images) => images.vehicles)
+	images: Images[]
 }

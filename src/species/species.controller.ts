@@ -9,7 +9,6 @@ import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.in
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
 import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
-import { Species } from 'src/entity/species.entity';
 import { CreateSpeciesDto } from 'src/dto/speciesDto/createSpeciesDto.dto';
 
 @ApiTags('Species')

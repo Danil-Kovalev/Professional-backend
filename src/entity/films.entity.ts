@@ -1,9 +1,10 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { People } from "./people.entity";
 import { Planets } from "./planets.entity";
 import { Starships } from "./starships.entity";
 import { Vehicles } from "./vehicles.entity";
 import { Species } from "./species.entity";
+import { Images } from "./images.entity";
 
 @Entity()
 export class Films {
@@ -87,4 +88,7 @@ export class Films {
 		}
     })
     planets: Planets[]
+
+	@OneToMany(() => Images, (images) => images.films)
+	images: Images[]
 }
