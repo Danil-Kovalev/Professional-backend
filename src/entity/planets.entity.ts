@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { People } from "./people.entity";
 import { Films } from "./films.entity";
+import { Images } from "./images.entity";
 
 @Entity()
 export class Planets {

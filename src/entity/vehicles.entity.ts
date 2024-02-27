@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Films } from "./films.entity";
 import { People } from "./people.entity";
 import { Images } from "./images.entity";
@@ -48,7 +48,4 @@ export class Vehicles {
 		onDelete: 'CASCADE'
 	})
 	films: Films[]
-
-	@OneToMany(() => Images, (images) => images.vehicles)
-	images: Images[]
 }

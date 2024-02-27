@@ -88,7 +88,4 @@ export class Films {
 		}
     })
     planets: Planets[]
-
-	@OneToMany(() => Images, (images) => images.films)
-	images: Images[]
 }
