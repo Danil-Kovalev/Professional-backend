@@ -1,14 +1,15 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsString, Matches } from "class-validator";
 
 export class CreateImagesDto {
 
     @Type(() => Number)
+    @ApiProperty({ required: false })
     @IsNumber()
-    id: number
+    idPeople: number
 
-    @Type(() => String)
-    @IsString()
-    @Matches('/.[jpeg | jpg | png]/g')
-    url: string
+    @Type(() => File)
+    @ApiProperty({ type: 'string', format: 'binary' })
+    file: Express.Multer.File
 }
