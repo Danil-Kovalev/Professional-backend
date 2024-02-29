@@ -23,7 +23,8 @@ export class ImagesController {
         storage: imageStorage,
         fileFilter: imageFilter
     }))
-    createImage(@Body() data: CreateImagesDto, @UploadedFile() file: Express.Multer.File) {
-        this.imagesService.createImage(file, data);
+    async createImage(@Body() data: CreateImagesDto, @UploadedFile() file: Express.Multer.File) {
+        let newIndexImage: number = await this.imagesService.createIndexImages();
+        this.imagesService.createImage(file, data, newIndexImage);
     }
 }

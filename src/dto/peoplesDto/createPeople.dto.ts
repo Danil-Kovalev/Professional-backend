@@ -78,4 +78,11 @@ export class CreatePeopleDto {
     @ApiProperty()
     starshipsIds: number[]
 
+    @Type(() => Array<number>)
+    @IsNumber({}, {
+        each: true
+    })
+    @ApiProperty()
+    imagesIds: number[]
+
 }

@@ -13,6 +13,7 @@ import { Planets } from 'src/entity/planets.entity';
 import { Species } from 'src/entity/species.entity';
 import { Vehicles } from 'src/entity/vehicles.entity';
 import { Starships } from 'src/entity/starships.entity';
+import { Images } from 'src/entity/images.entity';
 
 @Injectable()
 export class PeoplesService {
@@ -30,7 +31,8 @@ export class PeoplesService {
                 films: true,
                 species: true,
                 vehicles: true,
-                starships: true
+                starships: true,
+                images: true
             }
         });
         data = data.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
@@ -53,6 +55,7 @@ export class PeoplesService {
         peoples.species = createPeople.speciesIds.map(id => ({...new Species(), id}))
         peoples.vehicles = createPeople.vehiclesIds.map(id => ({...new Vehicles(), id}))
         peoples.starships = createPeople.starshipsIds.map(id => ({...new Starships(), id}))
+        peoples.images = createPeople.imagesIds.map(id => ({...new Images(), id}))
 
         let newPeople = {
             id: idPeople,
@@ -68,7 +71,8 @@ export class PeoplesService {
             films: peoples.films,
             species: peoples.species,
             vehicles: peoples.vehicles,
-            starships: peoples.starships
+            starships: peoples.starships,
+            images: peoples.images
         }
 
         this.peopleRepository.save(newPeople);

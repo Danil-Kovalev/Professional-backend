@@ -7,7 +7,7 @@ export class Images {
     id: number
 
     @Column()
-    url: string
+    fileName: string
 
     @ManyToOne(() => People, (people) => people.images)
     people: People
