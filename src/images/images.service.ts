@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { unlink } from 'fs';
 import { BASIC_PATH_IMAGE } from 'src/constants/constants';
 import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
 import { Images } from 'src/entity/images.entity';
@@ -16,15 +17,15 @@ export class ImagesService {
         private peoplesRepository: Repository<People>
     ) { }
 
-    async getImage(idImage: number) {
-        let nameFile = await this.imagesRepository.findOne({
-            select: {
-                fileName: true
-            },
+    async getImage(idImage: number): Promise<string> {
+        let file = await this.imagesRepository.findOne({
             where: {
                 id: idImage
             }
         })
+        if (file === null) throw new HttpException('File not exist', HttpStatus.BAD_REQUEST)
+        else return file.fileName;
+
     }
 
     async createImage(file: Express.Multer.File, data: CreateImagesDto, idImage: number) {
@@ -37,7 +38,7 @@ export class ImagesService {
             }
         })
 
-        let images = await this.imagesRepository.create();
+        let images = this.imagesRepository.create();
 
         images.people = peoples;
 
@@ -45,15 +46,25 @@ export class ImagesService {
             id: idImage,
             fileName: fileNameImage,
             peoples
-       }
+        }
 
-       this.imagesRepository.save(newImage);
+        this.imagesRepository.save(newImage);
     }
 
 
     async createIndexImages(): Promise<number> {
         let itemCount: number = await this.imagesRepository.createQueryBuilder().getCount();
         return itemCount + 1;
+    }
+
+    async deleteImage(idImage: number) {
+        let file = await this.imagesRepository.findOne({
+            where: {
+                id: idImage
+            }
+        })
+        unlink('./uploads/'.concat(file.fileName), ()=> {})
+        this.imagesRepository.remove(file);
     }
 
 }
