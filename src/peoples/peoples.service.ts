@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { PageMetaDto } from 'src/dto/pageDto/page-meta.dto';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
-import { PeopleDto } from 'src/dto/peoplesDto/people.dto';
 import { People } from 'src/entity/people.entity';
 import { CreatePeopleDto } from 'src/dto/peoplesDto/createPeople.dto';
 import { Films } from 'src/entity/films.entity';
@@ -14,6 +13,8 @@ import { Species } from 'src/entity/species.entity';
 import { Vehicles } from 'src/entity/vehicles.entity';
 import { Starships } from 'src/entity/starships.entity';
 import { Images } from 'src/entity/images.entity';
+import { formingUrl } from 'src/utils/formingUrl';
+import { ReturnPeopleDto } from 'src/dto/peoplesDto/returnPeople.dto';
 
 @Injectable()
 export class PeoplesService {
@@ -23,9 +24,9 @@ export class PeoplesService {
         private peopleRepository: Repository<People>,
     ) { }
 
-    async getPeoples(pageOptionsDto: PageOptionsDto): Promise<PageDto<PeopleDto>> {
+    async getPeoples(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnPeopleDto>> {
         let itemCount: number = await this.peopleRepository.createQueryBuilder().getCount();
-        let data = await this.peopleRepository.find({
+        let people: ReturnPeopleDto[] = await this.peopleRepository.find({
             relations: {
                 homeworld: true,
                 films: true,
@@ -35,11 +36,49 @@ export class PeoplesService {
                 images: true
             }
         });
-        data = data.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        people = people.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        people.map((dataPeople: ReturnPeopleDto) => {
+            dataPeople.homeworld = dataPeople.homeworld ? dataPeople.homeworld.map((planet) => planet.url) : []
+            dataPeople.films = dataPeople.films ? dataPeople.films.map((films) => films.url) : []
+            dataPeople.species = dataPeople.species ? dataPeople.species.map((species) => species.url) : []
+            dataPeople.vehicles = dataPeople.vehicles ? dataPeople.vehicles.map((vehicles) => vehicles.url) : []
+            dataPeople.starships = dataPeople.starships ? dataPeople.starships.map((starships) => starships.url) : []
+            dataPeople.images = dataPeople.images ? dataPeople.images.map((images) => images.url) : []
+        })
 
         const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-        return new PageDto(data, pageMetaDto);
+        return new PageDto(people, pageMetaDto);
+    }
+
+    async getPeople(idPeople: number): Promise<ReturnPeopleDto> {
+        let people: ReturnPeopleDto = await this.peopleRepository.findOne({
+            relations: {
+                homeworld: true,
+                films: true,
+                species: true,
+                vehicles: true,
+                starships: true,
+                images: true
+            },
+            where: {
+                id: idPeople
+            }
+        })
+
+        if (people === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+
+        people.homeworld = people.homeworld ? people.homeworld.map((planet) => planet.url) : []
+        people.films = people.films ? people.films.map((films) => films.url) : []
+        people.species = people.species ? people.species.map((species) => species.url) : []
+        people.vehicles = people.vehicles ? people.vehicles.map((vehicles) => vehicles.url) : []
+        people.starships = people.starships ? people.starships.map((starships) => starships.url) : []
+        people.images = people.images ? people.images.map((images) => images.url) : []
+
+        return people;
+
     }
 
     async createIndexPeople(): Promise<number> {
@@ -50,32 +89,16 @@ export class PeoplesService {
     updatePeople(idPeople: number, createPeople: CreatePeopleDto) {
         const peoples = this.peopleRepository.create(createPeople)
 
-        peoples.homeworld = createPeople.homeworldIds.map(id => ({...new Planets(), id}));
-        peoples.films = createPeople.filmsIds.map(id => ({...new Films(), id}))
-        peoples.species = createPeople.speciesIds.map(id => ({...new Species(), id}))
-        peoples.vehicles = createPeople.vehiclesIds.map(id => ({...new Vehicles(), id}))
-        peoples.starships = createPeople.starshipsIds.map(id => ({...new Starships(), id}))
-        peoples.images = createPeople.imagesIds.map(id => ({...new Images(), id}))
+        peoples.id = idPeople
+        peoples.homeworld = createPeople.homeworldIds.map(id => ({ ...new Planets(), id }));
+        peoples.films = createPeople.filmsIds.map(id => ({ ...new Films(), id }))
+        peoples.species = createPeople.speciesIds.map(id => ({ ...new Species(), id }))
+        peoples.vehicles = createPeople.vehiclesIds.map(id => ({ ...new Vehicles(), id }))
+        peoples.starships = createPeople.starshipsIds.map(id => ({ ...new Starships(), id }))
+        peoples.images = createPeople.imagesIds.map(id => ({ ...new Images(), id }))
+        peoples.url = formingUrl('peoples', idPeople)
 
-        let newPeople = {
-            id: idPeople,
-            name: createPeople.name,
-            height: createPeople.height,
-            mass: createPeople.mass,
-            hair_color: createPeople.hair_color,
-            skin_color: createPeople.skin_color,
-            eye_color: createPeople.eye_color,
-            birth_year: createPeople.birth_year,
-            gender: createPeople.gender,
-            homeworld: peoples.homeworld,
-            films: peoples.films,
-            species: peoples.species,
-            vehicles: peoples.vehicles,
-            starships: peoples.starships,
-            images: peoples.images
-        }
-
-        this.peopleRepository.save(newPeople);
+        this.peopleRepository.save(peoples);
     }
 
     deletePeople(id: number) {

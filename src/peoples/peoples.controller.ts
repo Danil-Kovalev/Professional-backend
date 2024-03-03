@@ -4,12 +4,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PeoplesService } from './peoples.service';
-import { PeopleDto } from 'src/dto/peoplesDto/people.dto';
 import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
 import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
 import { CreatePeopleDto } from 'src/dto/peoplesDto/createPeople.dto';
+import { ReturnPeopleDto } from 'src/dto/peoplesDto/returnPeople.dto';
+import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 
 @ApiTags('Peoples')
 @Controller('people')
@@ -19,9 +20,15 @@ export class PeoplesController {
 
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
-  @ApiPaginatedResponse(PeopleDto)
-  getPeoples(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<PeopleDto>> {
+  @ApiPaginatedResponse(ReturnPeopleDto)
+  getPeoples(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnPeopleDto>> {
     return this.peoplesService.getPeoples(pageOptionsDto);
+  }
+
+  @UseInterceptors(ResponseInterceptor)
+  @Get(':id')
+  getPeople(@Param('id', ParseIntPipe) idPeople: number): Promise<ReturnPeopleDto> {
+    return this.peoplesService.getPeople(idPeople)
   }
 
   @Post()

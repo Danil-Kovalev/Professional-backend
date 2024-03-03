@@ -4,12 +4,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { StarshipsService } from './starships.service';
-import { StarShipsDto } from 'src/dto/starshipsDto/starships.dto';
 import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
 import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
 import { CreateStarshipsDto } from 'src/dto/starshipsDto/createStarshipsDto.dto';
+import { ReturnStarshipsDto } from 'src/dto/starshipsDto/returnStarshipsDto.dto';
+import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 
 @ApiTags('Starships')
 @Controller('starships')
@@ -19,9 +20,15 @@ export class StarshipsController {
 
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
-  @ApiPaginatedResponse(StarShipsDto)
-  getStarships(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<StarShipsDto>> {
+  @ApiPaginatedResponse(ReturnStarshipsDto)
+  getStarships(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnStarshipsDto>> {
     return this.starshipsService.getStarships(pageOptionsDto)
+  }
+
+  @UseInterceptors(ResponseInterceptor)
+  @Get(':id')
+  getStarship(@Param('id', ParseIntPipe) idStarship: number): Promise<ReturnStarshipsDto> {
+    return this.starshipsService.getStarship(idStarship)
   }
 
   @Post()

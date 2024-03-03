@@ -43,6 +43,8 @@ export class CreatePeopleDto {
     @ApiProperty()
     gender: string
 
+    url: string
+
     @Type(() => Array<number>)
     @IsNumber({}, {
         each: true

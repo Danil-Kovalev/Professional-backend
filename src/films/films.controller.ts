@@ -4,12 +4,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FilmsService } from './fims.service';
-import { FilmsDto } from 'src/dto/filmsDto/films.dto';
 import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
 import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
 import { CreateFilmsDto } from 'src/dto/filmsDto/createFilmsDto.dto';
+import { ReturnFilmsDto } from 'src/dto/filmsDto/returnFilmsDto.dto';
+import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 
 @ApiTags('Films')
 @Controller('films')
@@ -19,9 +20,15 @@ export class FilmsController {
 
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
-  @ApiPaginatedResponse(FilmsDto)
-  getFilms(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<FilmsDto>> {
+  @ApiPaginatedResponse(ReturnFilmsDto)
+  getFilms(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnFilmsDto>> {
     return this.filmsService.getFilms(pageOptionsDto);
+  }
+
+  @UseInterceptors(ResponseInterceptor)
+  @Get(':id')
+  getFilm(@Param('id', ParseIntPipe) idFilms: number): Promise<ReturnFilmsDto> {
+    return this.filmsService.getFilm(idFilms)
   }
 
   @Post()

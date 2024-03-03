@@ -1,12 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsString } from "class-validator";
-import { PeopleDto } from "../peoplesDto/people.dto";
-import { FilmsDto } from "../filmsDto/films.dto";
 import { Films } from "src/entity/films.entity";
 import { People } from "src/entity/people.entity";
 
-export class PlanetsDto {
+export class ReturnPlanetsDto {
+
     @Type(() => String)
     @IsString()
     @ApiProperty()
@@ -52,13 +51,17 @@ export class PlanetsDto {
     @ApiProperty()
     population: number
 
-    @Type(() => Array<PeopleDto>)
-    @IsArray()
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-    residents: People[]
+    residents: People[] | string[]
 
-	@Type(() => Array<FilmsDto>)
-    @IsArray()
+	@Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-    films: Films[]
+    films: Films[] | string[]
 }

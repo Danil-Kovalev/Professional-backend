@@ -2,17 +2,13 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsString } from "class-validator";
 import { Films } from "src/entity/films.entity";
-import { FilmsDto } from "../filmsDto/films.dto";
-import { PlanetsDto } from "../planetsDto/planets.dto";
+import { Images } from "src/entity/images.entity";
 import { Planets } from "src/entity/planets.entity";
-import { SpeciesDto } from "../speciesDto/species.dto";
 import { Species } from "src/entity/species.entity";
-import { Vehicles } from "src/entity/vehicles.entity";
-import { StarShipsDto } from "../starshipsDto/starships.dto";
 import { Starships } from "src/entity/starships.entity";
-import { VehiclesDto } from "../vehiclesDto/vehicles.dto";
+import { Vehicles } from "src/entity/vehicles.entity";
 
-export class PeopleDto {
+export class ReturnPeopleDto {
     @Type(() => String)
     @IsString()
     @ApiProperty()
@@ -53,28 +49,46 @@ export class PeopleDto {
     @ApiProperty()
     gender: string
 
-    @Type(() => Array<PlanetsDto>)
-    @IsArray()
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-    homeworld: Planets[]
-    
-    @Type(() => Array<FilmsDto>)
-    @IsArray()
-    @ApiProperty()
-    films: Films[]
+    homeworld: Planets[] | string[]
 
-    @Type(() => Array<SpeciesDto>)
-    @IsArray()
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-    species: Species[]
+    films: Films[] | string[]
 
-    @Type(() => Array<VehiclesDto>)
-    @IsArray()
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-    vehicles: Vehicles[]
+    species: Species[] | string[]
 
-    @Type(() => Array<StarShipsDto>)
-    @IsArray()
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-    starships: Starships[]
+    vehicles: Vehicles[] | string[]
+
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
+    @ApiProperty()
+    starships: Starships[] | string[]
+
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
+    @ApiProperty()
+    images: Images[] | string[]
+
 }

@@ -48,4 +48,7 @@ export class Vehicles {
 		onDelete: 'CASCADE'
 	})
 	films: Films[]
+
+	@Column()
+	url: string
 }

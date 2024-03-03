@@ -9,6 +9,9 @@ export class Images {
     @Column()
     fileName: string
 
+    @Column()
+    url: string
+
     @ManyToOne(() => People, (people) => people.images, {
         onDelete: 'CASCADE'
     })

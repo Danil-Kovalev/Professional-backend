@@ -1,13 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
 import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
 import { PageDto } from "src/dto/pageDto/page.dto";
 import { CreateStarshipsDto } from "src/dto/starshipsDto/createStarshipsDto.dto";
-import { StarShipsDto } from "src/dto/starshipsDto/starships.dto";
+import { ReturnStarshipsDto } from "src/dto/starshipsDto/returnStarshipsDto.dto";
 import { Films } from "src/entity/films.entity";
 import { People } from "src/entity/people.entity";
 import { Starships } from "src/entity/starships.entity";
+import { formingUrl } from "src/utils/formingUrl";
 import { Repository } from "typeorm";
 
 
@@ -18,19 +19,43 @@ export class StarshipsService {
         private starshipsRepository: Repository<Starships>
     ) { }
 
-    async getStarships(pageOptionsDto: PageOptionsDto): Promise<PageDto<StarShipsDto>> {
+    async getStarships(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnStarshipsDto>> {
         let itemCount: number = await this.starshipsRepository.createQueryBuilder().getCount();
-        let data = await this.starshipsRepository.find({
+        let starships: ReturnStarshipsDto[] = await this.starshipsRepository.find({
             relations: {
                 pilots: true,
                 films: true
             }
         });
-        data = data.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+        starships = starships.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        starships.map((dataStarships: ReturnStarshipsDto) => {
+            dataStarships.pilots = dataStarships.pilots ? dataStarships.pilots.map((peoples) => peoples.url) : []
+            dataStarships.films = dataStarships.films ? dataStarships.films.map((films) => films.url) : []
+        })
 
         const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-        return new PageDto(data, pageMetaDto);
+        return new PageDto(starships, pageMetaDto);
+    }
+
+    async getStarship(idStarship: number): Promise<ReturnStarshipsDto> {
+        let starships: ReturnStarshipsDto = await this.starshipsRepository.findOne({
+            relations: {
+                pilots: true,
+                films: true
+            },
+            where: {
+                id: idStarship
+            }
+        })
+
+        if (starships === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+
+        starships.pilots = starships.pilots ? starships.pilots.map((peoples) => peoples.url) : []
+        starships.films = starships.films ? starships.films.map((films) => films.url) : []
+
+        return starships;
     }
 
     async createIndexStarships(): Promise<number> {
@@ -41,27 +66,12 @@ export class StarshipsService {
     updateStarships(idStarships: number, createStarships: CreateStarshipsDto) {
         const starships = this.starshipsRepository.create(createStarships)
 
+        starships.id = idStarships;
         starships.pilots = createStarships.pilotsIds.map(id => ({...new People(), id}))
         starships.films = createStarships.filmsIds.map(id => ({...new Films(), id}))
+        starships.url = formingUrl('starships', idStarships)
 
-        let newStarships = {
-            id: idStarships,
-            name: createStarships.name,
-            model: createStarships.model,
-            manufacturer: createStarships.manufacturer,
-            cost_in_credits: createStarships.cost_in_credits,
-            length: createStarships.length,
-            max_atmosphering_speed: createStarships.max_atmosphering_speed,
-            crew: createStarships.crew,
-            passengers: createStarships.passengers,
-            hyperdrive_rating: createStarships.hyperdrive_rating,
-            MGLT: createStarships.MGLT,
-            starship_class: createStarships.starship_class,
-            pilots: starships.pilots,
-            films: starships.films
-        }
-
-        this.starshipsRepository.save(newStarships);
+        this.starshipsRepository.save(starships);
     }
 
     deleteStarships(id: number) {

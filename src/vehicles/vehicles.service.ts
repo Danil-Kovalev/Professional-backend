@@ -1,13 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
 import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
 import { PageDto } from "src/dto/pageDto/page.dto";
 import { CreateVehiclesDto } from "src/dto/vehiclesDto/createVehiclesDto.dto";
-import { VehiclesDto } from "src/dto/vehiclesDto/vehicles.dto";
+import { ReturnVehiclesDto } from "src/dto/vehiclesDto/returnVehiclesDto.dto";
 import { Films } from "src/entity/films.entity";
 import { People } from "src/entity/people.entity";
 import { Vehicles } from "src/entity/vehicles.entity";
+import { formingUrl } from "src/utils/formingUrl";
 import { Repository } from "typeorm";
 
 
@@ -18,19 +19,43 @@ export class VehiclesService {
         private vehiclesRepository: Repository<Vehicles>
     ) { }
 
-    async getVehicles(pageOptionsDto: PageOptionsDto): Promise<PageDto<VehiclesDto>> {
+    async getVehicles(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnVehiclesDto>> {
         let itemCount: number = await this.vehiclesRepository.createQueryBuilder().getCount();
-        let data = await this.vehiclesRepository.find({
+        let vehicles: ReturnVehiclesDto[] = await this.vehiclesRepository.find({
             relations: {
                 pilots: true,
                 films: true
             }
         });
-        data = data.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+        vehicles = vehicles.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        vehicles.map((dataVehicles: ReturnVehiclesDto) => {
+            dataVehicles.pilots = dataVehicles.pilots ? dataVehicles.pilots.map((peoples) => peoples.url) : []
+            dataVehicles.films = dataVehicles.films ? dataVehicles.films.map((films) => films.url) : []
+        })
 
         const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-        return new PageDto(data, pageMetaDto);
+        return new PageDto(vehicles, pageMetaDto);
+    }
+
+    async getVehicle(idVehicle: number): Promise<ReturnVehiclesDto> {
+        let vehicle: ReturnVehiclesDto = await this.vehiclesRepository.findOne({
+            relations: {
+                pilots: true,
+                films: true
+            },
+            where: {
+                id: idVehicle
+            }
+        })
+
+        if (vehicle === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+
+        vehicle.pilots = vehicle.pilots ? vehicle.pilots.map((peoples) => peoples.url) : []
+        vehicle.films = vehicle.films ? vehicle.films.map((films) => films.url) : []
+
+        return vehicle;
     }
 
     async createIndexVehicles(): Promise<number> {
@@ -41,26 +66,12 @@ export class VehiclesService {
     updateVehicles(idVehicles: number, createVehicles: CreateVehiclesDto) {
         const vehicles = this.vehiclesRepository.create(createVehicles)
 
+        vehicles.id = idVehicles;
         vehicles.pilots = createVehicles.pilotsIds.map(id => ({...new People(), id}))
         vehicles.films = createVehicles.filmsIds.map(id => ({...new Films(), id}))
+        vehicles.url = formingUrl('vehicles', idVehicles)
 
-        let newVehicles = {
-            id: idVehicles,
-            name: createVehicles.name,
-            model: createVehicles.model,
-            manufacturer: createVehicles.manufacturer,
-            cost_in_credits: createVehicles.cost_in_credits,
-            length: createVehicles.length,
-            max_atmosphering_speed: createVehicles.max_atmosphering_speed,
-            crew: createVehicles.crew,
-            passengers: createVehicles.passengers,
-            cargo_capacity: createVehicles.cargo_capacity,
-            consumables: createVehicles.consumables,
-            pilots: vehicles.pilots,
-            films: vehicles.films
-        }
-
-        this.vehiclesRepository.save(newVehicles);
+        this.vehiclesRepository.save(vehicles);
     }
 
     deleteVehicles(id: number) {

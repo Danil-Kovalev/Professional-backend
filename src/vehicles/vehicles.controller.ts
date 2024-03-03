@@ -7,10 +7,11 @@ import {
 import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
 import { VehiclesService } from './vehicles.service';
 import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
-import { VehiclesDto } from 'src/dto/vehiclesDto/vehicles.dto';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
 import { CreateVehiclesDto } from 'src/dto/vehiclesDto/createVehiclesDto.dto';
+import { ReturnVehiclesDto } from 'src/dto/vehiclesDto/returnVehiclesDto.dto';
+import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 
 @ApiTags('Vehicles')
 @Controller('vehicles')
@@ -20,9 +21,15 @@ export class VehiclesController {
 
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
-  @ApiPaginatedResponse(VehiclesDto)
-  getVehicles(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<VehiclesDto>> {
+  @ApiPaginatedResponse(ReturnVehiclesDto)
+  getVehicles(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnVehiclesDto>> {
     return this.vehiclesService.getVehicles(pageOptionsDto);
+  }
+
+  @UseInterceptors(ResponseInterceptor)
+  @Get(':id')
+  getVehicle(@Param('id', ParseIntPipe) idVehicle: number): Promise<ReturnVehiclesDto> {
+    return this.vehiclesService.getVehicle(idVehicle)
   }
 
   @Post()

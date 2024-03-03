@@ -108,4 +108,7 @@ export class People {
 
 	@OneToMany(() => Images, (images) => images.people)
 	images: Images[]
+
+	@Column()
+	url: string
 }

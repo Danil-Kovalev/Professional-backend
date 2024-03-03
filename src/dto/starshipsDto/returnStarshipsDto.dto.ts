@@ -1,13 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
-import { IsArray, IsNumber, IsString } from "class-validator"
-import { PeopleDto } from "../peoplesDto/people.dto"
-import { FilmsDto } from "../filmsDto/films.dto"
-import { People } from "src/entity/people.entity"
+import { IsNumber, IsString } from "class-validator"
 import { Films } from "src/entity/films.entity"
+import { People } from "src/entity/people.entity"
 
-export class VehiclesDto {
-    
+export class ReturnStarshipsDto {
     @Type(() => String)
     @IsString()
     @ApiProperty()
@@ -28,7 +25,7 @@ export class VehiclesDto {
     @ApiProperty()
 	cost_in_credits: number
 
-    @Type(() => Number)
+	@Type(() => Number)
     @IsNumber()
     @ApiProperty()
 	length: number
@@ -58,13 +55,32 @@ export class VehiclesDto {
     @ApiProperty()
     consumables: string
 
-    @Type(() => Array<PeopleDto>)
-    @IsArray()
+    @Type(() => Number)
+    @IsNumber()
     @ApiProperty()
-	pilots: People[]
+    hyperdrive_rating: number
 
-	@Type(() => Array<FilmsDto>)
-    @IsArray()
+    @Type(() => Number)
+    @IsNumber()
     @ApiProperty()
-	films: Films[]
+    MGLT: number
+
+    @Type(() => String)
+    @IsString()
+    @ApiProperty()
+    starship_class: string
+
+	@Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
+    @ApiProperty()
+	pilots: People[] | string[]
+
+	@Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
+    @ApiProperty()
+	films: Films[] | string[]
 }

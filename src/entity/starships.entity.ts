@@ -57,4 +57,7 @@ export class Starships {
 		onDelete: 'CASCADE'
 	})
 	films: Films[]
+
+	@Column()
+	url: string
 }

@@ -4,12 +4,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SpeciesService } from './species.service';
-import { SpeciesDto } from 'src/dto/speciesDto/species.dto';
 import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from 'src/dto/pageDto/page.dto';
 import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
 import { CreateSpeciesDto } from 'src/dto/speciesDto/createSpeciesDto.dto';
+import { ReturnSpeciesDto } from 'src/dto/speciesDto/returnSpeciesDto.dto';
+import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 
 @ApiTags('Species')
 @Controller('species')
@@ -19,9 +20,15 @@ export class SpeciesController {
 
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
-  @ApiPaginatedResponse(SpeciesDto)
-  getSpecies(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<SpeciesDto>> {
+  @ApiPaginatedResponse(ReturnSpeciesDto)
+  getSpecies(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnSpeciesDto>> {
     return this.speciesService.getSpecies(pageOptionsDto)
+  }
+
+  @UseInterceptors(ResponseInterceptor)
+  @Get(':id')
+  getSpecie(@Param('id', ParseIntPipe) idSpecie: number): Promise<ReturnSpeciesDto> {
+    return this.speciesService.getSpecie(idSpecie)
   }
 
   @Post()

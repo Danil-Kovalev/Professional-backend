@@ -25,18 +25,18 @@ export class Species {
 	@Column()
 	skin_colors: string
 
-    @Column()
-    hair_colors: string
-
 	@Column()
 	eye_colors: string
+
+    @Column()
+    hair_colors: string
 
 	@Column()
 	average_lifespan: number
 
 	@OneToOne(() => Planets)
 	@JoinColumn({ name: "planets_id" })
-	planets: Planets
+	planet: Planets
 
     @Column()
     language: string
@@ -50,4 +50,7 @@ export class Species {
 		onDelete: 'CASCADE'
 	})
 	films: Films[]
+
+	@Column()
+	url: string
 }

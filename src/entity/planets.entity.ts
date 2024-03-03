@@ -45,4 +45,7 @@ export class Planets {
 		onDelete: 'CASCADE'
 	})
     films: Films[]
+
+	@Column()
+	url: string
 }

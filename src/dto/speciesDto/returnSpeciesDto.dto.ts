@@ -1,15 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsArray, IsNumber, IsString } from "class-validator";
-import { PeopleDto } from "../peoplesDto/people.dto";
-import { PlanetsDto } from "../planetsDto/planets.dto";
-import { FilmsDto } from "../filmsDto/films.dto";
-import { Planets } from "src/entity/planets.entity";
-import { People } from "src/entity/people.entity";
-import { Films } from "src/entity/films.entity";
+import { ApiProperty } from "@nestjs/swagger"
+import { Type } from "class-transformer"
+import { IsArray, IsNumber, IsString } from "class-validator"
+import { Films } from "src/entity/films.entity"
+import { People } from "src/entity/people.entity"
+import { Planets } from "src/entity/planets.entity"
 
-export class SpeciesDto {
-    
+export class ReturnSpeciesDto {
+
     @Type(() => String)
     @IsString()
     @ApiProperty()
@@ -38,34 +35,39 @@ export class SpeciesDto {
     @Type(() => String)
     @IsString()
     @ApiProperty()
-    hair_colors: string
+    eye_colors: string
 
     @Type(() => String)
     @IsString()
     @ApiProperty()
-    eye_colors: string
+    hair_colors: string
 
     @Type(() => Number)
     @IsNumber()
     @ApiProperty()
     average_lifespan: number
 
-    @Type(() => PlanetsDto)
+    @Type(() => Number)
+    @IsString()
     @ApiProperty()
-	planets: Planets
+	planet: Planets | string
 
     @Type(() => String)
     @IsString()
     @ApiProperty()
     language: string
 
-    @Type(() => Array<PeopleDto>)
-    @IsArray()
+    @Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-	people: People[]
+	people: People[] | string[]
 
-	@Type(() => Array<FilmsDto>)
-    @IsArray()
+	@Type(() => Array<string>)
+    @IsString({
+        each: true
+    })
     @ApiProperty()
-	films: Films[]
+	films: Films[] | string[]
 }

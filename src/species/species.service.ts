@@ -1,16 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { spec } from "node:test/reporters";
 import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
 import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
 import { PageDto } from "src/dto/pageDto/page.dto";
 import { CreateSpeciesDto } from "src/dto/speciesDto/createSpeciesDto.dto";
-import { SpeciesDto } from "src/dto/speciesDto/species.dto";
+import { ReturnSpeciesDto } from "src/dto/speciesDto/returnSpeciesDto.dto";
 import { Films } from "src/entity/films.entity";
-import { People } from "src/entity/people.entity";
 import { Planets } from "src/entity/planets.entity";
 import { Species } from "src/entity/species.entity";
 import { Repository } from "typeorm";
+import { formingUrl } from "src/utils/formingUrl";
+import { People } from "src/entity/people.entity";
 
 
 @Injectable()
@@ -23,20 +24,47 @@ export class SpeciesService {
         private planetsRepository: Repository<Planets>
     ) { }
 
-    async getSpecies(pageOptionsDto: PageOptionsDto): Promise<PageDto<SpeciesDto>> {
+    async getSpecies(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnSpeciesDto>> {
         let itemCount: number = await this.speciesRepository.createQueryBuilder().getCount();
-        let data = await this.speciesRepository.find({
+        let species: ReturnSpeciesDto[] = await this.speciesRepository.find({
             relations: {
-                planets: true,
+                planet: true,
                 people: true,
                 films: true
             }
         });
-        data = data.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+        species = species.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        species.map((dataSpecies: ReturnSpeciesDto) => {
+            // dataSpecies.planet = dataSpecies.planet ? dataSpecies.planet.map((planet) => planet.url) : [] ?
+            dataSpecies.people = dataSpecies.people ? dataSpecies.people.map((peoples) => peoples.url) : []
+            dataSpecies.films = dataSpecies.films ? dataSpecies.films.map((films) => films.url) : []
+        })
 
         const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-        return new PageDto(data, pageMetaDto);
+        return new PageDto(species, pageMetaDto);
+    }
+
+    async getSpecie(idSpecie: number): Promise<ReturnSpeciesDto> {
+        let species: ReturnSpeciesDto = await this.speciesRepository.findOne({
+            relations: {
+                planet: true,
+                people: true,
+                films: true
+            },
+            where: {
+                id: idSpecie
+            }
+        })
+
+        if (species === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+
+        // species.planet = species.planet ? species.planet.map((planet) => planet.url) : [] ?
+        species.people = species.people ? species.people.map((people) => people.url) : []
+        species.films = species.films ? species.films.map((films) => films.url) : []
+
+        return species;
     }
 
     async createIndexSpecies(): Promise<number> {
@@ -53,26 +81,13 @@ export class SpeciesService {
             }
         })
 
-        species.planets = planets
+        species.id = idSpecies
+        species.planet = planets
         species.people = createSpecies.peopleIds.map(id => ({ ...new People(), id }))
         species.films = createSpecies.filmsIds.map(id => ({ ...new Films(), id }))
+        species.url = formingUrl('species', idSpecies)
     
-        let newSpecies = {
-            id: idSpecies,
-            name: createSpecies.name,
-            classification: createSpecies.classification,
-            designation: createSpecies.designation,
-            average_heigh: createSpecies.average_heigh,
-            skin_colors: createSpecies.skin_colors,
-            hair_colors: createSpecies.hair_colors,
-            eye_colors: createSpecies.eye_colors,
-            average_lifespan: createSpecies.average_lifespan,
-            language: createSpecies.language,
-            planets,
-            people: species.people,
-            films: species.films
-        }
-        this.speciesRepository.save(newSpecies)
+        this.speciesRepository.save(species)
     }
 
     async deleteSpecies(idDelete: number) {

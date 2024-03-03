@@ -88,4 +88,7 @@ export class Films {
 		}
     })
     planets: Planets[]
+
+	@Column()
+	url: string
 }

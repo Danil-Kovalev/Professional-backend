@@ -30,7 +30,6 @@ export class ImagesService {
 
     async createImage(file: Express.Multer.File, data: CreateImagesDto, idImage: number) {
         let fileNameImage: string = file.filename;
-        //    pathFile = BASIC_PATH_IMAGE.concat(pathFile.replaceAll('\\', '\/'))
 
         let peoples = await this.peoplesRepository.findOne({
             where: {
@@ -63,7 +62,7 @@ export class ImagesService {
                 id: idImage
             }
         })
-        unlink('./uploads/'.concat(file.fileName), ()=> {})
+        unlink('./uploads/'.concat(file.fileName), () => {})
         this.imagesRepository.remove(file);
     }
 
