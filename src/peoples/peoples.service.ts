@@ -34,10 +34,12 @@ export class PeoplesService {
                 vehicles: true,
                 starships: true,
                 images: true
-            }
+            },
+            skip: pageOptionsDto.skip,
+            take: pageOptionsDto.take
         });
 
-        people = people.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+        if (people === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
         people.map((dataPeople: ReturnPeopleDto) => {
             dataPeople.homeworld = dataPeople.homeworld ? dataPeople.homeworld.map((planet) => planet.url) : []
@@ -68,7 +70,7 @@ export class PeoplesService {
             }
         })
 
-        if (people === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+        if (people === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         people.homeworld = people.homeworld ? people.homeworld.map((planet) => planet.url) : []
         people.films = people.films ? people.films.map((films) => films.url) : []
@@ -101,7 +103,15 @@ export class PeoplesService {
         this.peopleRepository.save(peoples);
     }
 
-    deletePeople(id: number) {
-        this.peopleRepository.delete(id)
+    deletePeople(idPeople: number) {
+        const people = this.peopleRepository.findOne({
+            where: {
+                id: idPeople
+            }
+        })
+
+        if(people === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
+
+        this.peopleRepository.delete(idPeople)
     }
 }

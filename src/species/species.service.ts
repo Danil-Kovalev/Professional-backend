@@ -31,12 +31,16 @@ export class SpeciesService {
                 planet: true,
                 people: true,
                 films: true
-            }
+            },
+            skip: pageOptionsDto.skip,
+            take: pageOptionsDto.take
         });
-        species = species.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        if (species === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
         species.map((dataSpecies: ReturnSpeciesDto) => {
-            // dataSpecies.planet = dataSpecies.planet ? dataSpecies.planet.map((planet) => planet.url) : [] ?
+            let planet: Planets = dataSpecies.planet as Planets
+            dataSpecies.planet = dataSpecies.planet as Planets ? planet.url : ""
             dataSpecies.people = dataSpecies.people ? dataSpecies.people.map((peoples) => peoples.url) : []
             dataSpecies.films = dataSpecies.films ? dataSpecies.films.map((films) => films.url) : []
         })
@@ -58,9 +62,11 @@ export class SpeciesService {
             }
         })
 
-        if (species === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+        if (species === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
-        // species.planet = species.planet ? species.planet.map((planet) => planet.url) : [] ?
+        let planet: Planets = species.planet as Planets
+
+        species.planet = species.planet as Planets ? planet.url : ""
         species.people = species.people ? species.people.map((people) => people.url) : []
         species.films = species.films ? species.films.map((films) => films.url) : []
 
@@ -82,7 +88,7 @@ export class SpeciesService {
         })
 
         species.id = idSpecies
-        species.planet = planets
+        if (planets !== null) species.planet = planets
         species.people = createSpecies.peopleIds.map(id => ({ ...new People(), id }))
         species.films = createSpecies.filmsIds.map(id => ({ ...new Films(), id }))
         species.url = formingUrl('species', idSpecies)
@@ -90,7 +96,15 @@ export class SpeciesService {
         this.speciesRepository.save(species)
     }
 
-    async deleteSpecies(idDelete: number) {
-        this.speciesRepository.delete(idDelete)
+    async deleteSpecies(idSpecie: number) {
+        const specie = this.speciesRepository.findOne({
+            where: {
+                id: idSpecie
+            }
+        })
+
+        if(specie === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
+
+        this.speciesRepository.delete(idSpecie)
     }
 }

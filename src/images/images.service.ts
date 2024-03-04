@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { unlink } from 'fs';
-import { BASIC_PATH_IMAGE } from 'src/constants/constants';
 import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
 import { Images } from 'src/entity/images.entity';
 import { People } from 'src/entity/people.entity';
@@ -23,7 +22,7 @@ export class ImagesService {
                 id: idImage
             }
         })
-        if (file === null) throw new HttpException('File not exist', HttpStatus.BAD_REQUEST)
+        if (file === null) throw new HttpException('File not exist', HttpStatus.NOT_FOUND)
         else return file.fileName;
 
     }

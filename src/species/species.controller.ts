@@ -33,7 +33,7 @@ export class SpeciesController {
 
   @Post()
   @ApiResponse({ status: 201, description: 'The species has been successfully created.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Not found.' })
   async createSpecies(@Body() newSpecies: CreateSpeciesDto) {
     let indexNewSpecies: number = await this.speciesService.createIndexSpecies();
     this.speciesService.updateSpecies(indexNewSpecies, newSpecies);

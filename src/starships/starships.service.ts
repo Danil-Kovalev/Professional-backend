@@ -25,9 +25,12 @@ export class StarshipsService {
             relations: {
                 pilots: true,
                 films: true
-            }
+            },
+            skip: pageOptionsDto.skip,
+            take: pageOptionsDto.take
         });
-        starships = starships.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        if (starships === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
         starships.map((dataStarships: ReturnStarshipsDto) => {
             dataStarships.pilots = dataStarships.pilots ? dataStarships.pilots.map((peoples) => peoples.url) : []
@@ -50,7 +53,7 @@ export class StarshipsService {
             }
         })
 
-        if (starships === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+        if (starships === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         starships.pilots = starships.pilots ? starships.pilots.map((peoples) => peoples.url) : []
         starships.films = starships.films ? starships.films.map((films) => films.url) : []
@@ -74,7 +77,12 @@ export class StarshipsService {
         this.starshipsRepository.save(starships);
     }
 
-    deleteStarships(id: number) {
-        this.starshipsRepository.delete(id)
+    deleteStarships(idStarship: number) {
+        const starship = this.starshipsRepository.findOne({
+            where: {
+                id: idStarship
+            }
+        })
+        this.starshipsRepository.delete(idStarship)
     }
 }

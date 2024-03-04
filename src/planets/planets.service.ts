@@ -26,10 +26,12 @@ export class PlanetsService {
             relations: {
                 residents: true,
                 films: true
-            }
+            },
+            skip: pageOptionsDto.skip,
+            take: pageOptionsDto.take
         });
 
-        planets = planets.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+        if (planets === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
         planets.map((dataPlanets: ReturnPlanetsDto) => {
             dataPlanets.residents = dataPlanets.residents ? dataPlanets.residents.map((people) => people.url) : []
@@ -52,7 +54,7 @@ export class PlanetsService {
             }
         })
 
-        if (planet === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+        if (planet === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         planet.residents = planet.residents ? planet.residents.map((people) => people.url) : []
         planet.films = planet.films ? planet.films.map((films) => films.url) : []
@@ -76,7 +78,15 @@ export class PlanetsService {
         this.planetsRepository.save(planets)
     }
 
-    deletePlanets(id: number) {
-        this.planetsRepository.delete(id)
+    deletePlanets(idPlanet: number) {
+        const planet = this.planetsRepository.find({
+            where: {
+                id: idPlanet
+            }
+        })
+
+        if (planet === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
+
+        this.planetsRepository.delete(idPlanet)
     }
 }

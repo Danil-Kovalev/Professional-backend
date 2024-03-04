@@ -31,9 +31,12 @@ export class FilmsService {
                 vehicles: true,
                 species: true,
                 planets: true
-            }
+            },
+            skip: pageOptionsDto.skip,
+            take: pageOptionsDto.take
         });
-        films = films.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
+
+        if (films === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
         films.map((dataFilms: ReturnFilmsDto) => {
             dataFilms.characters = dataFilms.characters ? dataFilms.characters.map((films) => films.url) : []
@@ -62,7 +65,7 @@ export class FilmsService {
             }
         })
 
-        if (films === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+        if (films === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         films.characters = films.characters ? films.characters.map((people) => people.url) : []
         films.species = films.species ? films.species.map((species) => species.url) : []
@@ -92,7 +95,15 @@ export class FilmsService {
         this.filmsRepository.save(films)
     }
 
-    deleteFilms(id: number) {
-        this.filmsRepository.delete(id)
+    deleteFilms(idFilm: number) {
+        const film = this.filmsRepository.findOne({
+            where: {
+                id: idFilm
+            }
+        })
+
+        if(film === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
+        
+        this.filmsRepository.delete(idFilm)
     }
 }

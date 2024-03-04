@@ -27,6 +27,9 @@ export class VehiclesService {
                 films: true
             }
         });
+
+        if (vehicles === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
+
         vehicles = vehicles.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
 
         vehicles.map((dataVehicles: ReturnVehiclesDto) => {
@@ -50,7 +53,7 @@ export class VehiclesService {
             }
         })
 
-        if (vehicle === null) throw new HttpException('Entity not exist!', HttpStatus.BAD_REQUEST)
+        if (vehicle === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         vehicle.pilots = vehicle.pilots ? vehicle.pilots.map((peoples) => peoples.url) : []
         vehicle.films = vehicle.films ? vehicle.films.map((films) => films.url) : []
@@ -74,7 +77,15 @@ export class VehiclesService {
         this.vehiclesRepository.save(vehicles);
     }
 
-    deleteVehicles(id: number) {
-        this.vehiclesRepository.delete(id)
+    deleteVehicles(idVehicle: number) {
+        const vehicle = this.vehiclesRepository.findOne({
+            where: {
+                id: idVehicle
+            }
+        })
+
+        if (vehicle === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
+
+        this.vehiclesRepository.delete(idVehicle)
     }
 }
