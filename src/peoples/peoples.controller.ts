@@ -18,6 +18,11 @@ import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 export class PeoplesController {
   constructor(private readonly peoplesService: PeoplesService) { }
 
+  /**
+   * Gets all peoples from database and slice by number page
+   * @param pageOptionsDto number page
+   * @returns data species
+   */
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
   @ApiPaginatedResponse(ReturnPeopleDto)
@@ -25,12 +30,21 @@ export class PeoplesController {
     return this.peoplesService.getPeoples(pageOptionsDto);
   }
 
+  /**
+   * Gets one people by id from database
+   * @param idPeople for found entity from database
+   * @returns data people
+   */
   @UseInterceptors(ResponseInterceptor)
   @Get(':id')
   getPeople(@Param('id', ParseIntPipe) idPeople: number): Promise<ReturnPeopleDto> {
     return this.peoplesService.getPeople(idPeople)
   }
 
+  /**
+   * Create new people entity and save to database
+   * @param newPeople data new entity
+   */
   @Post()
   @ApiResponse({ status: 201, description: 'The people has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -39,11 +53,20 @@ export class PeoplesController {
     this.peoplesService.updatePeople(indexNewPeople, newPeople);
   }
 
+  /**
+   * Update entity by id and save to database
+   * @param id for found people from database
+   * @param editPeople new data for update entity in database
+   */
   @Put(':id')
   updatePeople(@Param('id', ParseIntPipe) id: number, @Body() editPeople: CreatePeopleDto) {
     this.peoplesService.updatePeople(id, editPeople);
   }
 
+  /**
+   * Delete entity by id
+   * @param id for found people in database and delete it
+   */
   @Delete(':id')
   deletePeople(@Param('id', ParseIntPipe) id: number) {
     this.peoplesService.deletePeople(id);

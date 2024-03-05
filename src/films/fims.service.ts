@@ -22,8 +22,15 @@ export class FilmsService {
         private filmsRepository: Repository<Films>
     ) { }
 
+    /**
+     * Gets all films with params and return spliced data by page
+     * @param pageOptionsDto number page for slice data by page
+     * @returns sliced data all films
+     */
     async getFilms(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnFilmsDto>> {
-        let itemCount: number = await this.filmsRepository.createQueryBuilder().getCount();
+        let itemCount: number = await this.filmsRepository.createQueryBuilder().getCount(); //get count all films from database
+
+        // send request to database for gets data by params
         let films: ReturnFilmsDto[] = await this.filmsRepository.find({
             relations: {
                 characters: true,
@@ -36,8 +43,10 @@ export class FilmsService {
             take: pageOptionsDto.take
         });
 
+        //check existence films in case of absence returns exception
         if (films === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
+        // sets url for daughter entity for receiving data instead it data
         films.map((dataFilms: ReturnFilmsDto) => {
             dataFilms.characters = dataFilms.characters ? dataFilms.characters.map((films) => films.url) : []
             dataFilms.starships = dataFilms.starships ? dataFilms.starships.map((starships) => starships.url) : []
@@ -46,11 +55,16 @@ export class FilmsService {
             dataFilms.planets = dataFilms.planets ? dataFilms.planets.map((planets) => planets.url) : []
         })
 
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount }); //sets meta information
 
         return new PageDto(films, pageMetaDto);
     }
 
+    /**
+     * Gets film by id from database and sets url for dauther entity
+     * @param idFilm for get data from database
+     * @returns film entity
+     */
     async getFilm(idFilm: number): Promise<ReturnFilmsDto> {
         let films: ReturnFilmsDto = await this.filmsRepository.findOne({
             relations: {
@@ -76,11 +90,20 @@ export class FilmsService {
         return films;
     }
 
+    /**
+     * Create index for new entity by last id from database
+     * @returns new id for entity
+     */
     async createIndexFilms(): Promise<number> {
         let itemCount: number = await this.filmsRepository.createQueryBuilder().getCount();
         return itemCount + 1;
     }
 
+    /**
+     * Update data and relations for film entity
+     * @param idFilms found film from database by id
+     * @param createFilms new data for update
+     */
     updateFilms(idFilms: number, createFilms: CreateFilmsDto) {
         const films = this.filmsRepository.create(createFilms)
 
@@ -95,6 +118,10 @@ export class FilmsService {
         this.filmsRepository.save(films)
     }
 
+    /**
+     * Delete film by id from database
+     * @param idFilm for delete from database
+     */
     deleteFilms(idFilm: number) {
         const film = this.filmsRepository.findOne({
             where: {

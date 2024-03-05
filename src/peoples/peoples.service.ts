@@ -24,8 +24,15 @@ export class PeoplesService {
         private peopleRepository: Repository<People>,
     ) { }
 
+    /**
+     * Gets all peoples with params and return spliced data by page
+     * @param pageOptionsDto number page for slice data by page
+     * @returns sliced data all peoples
+     */
     async getPeoples(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnPeopleDto>> {
-        let itemCount: number = await this.peopleRepository.createQueryBuilder().getCount();
+        let itemCount: number = await this.peopleRepository.createQueryBuilder().getCount(); //get count all peoples from database
+
+        // send request to database for gets data by params
         let people: ReturnPeopleDto[] = await this.peopleRepository.find({
             relations: {
                 homeworld: true,
@@ -39,8 +46,10 @@ export class PeoplesService {
             take: pageOptionsDto.take
         });
 
+        //check existence peoples in case of absence returns exception
         if (people === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
 
+        // sets url for daughter entity for receiving data instead it data
         people.map((dataPeople: ReturnPeopleDto) => {
             dataPeople.homeworld = dataPeople.homeworld ? dataPeople.homeworld.map((planet) => planet.url) : []
             dataPeople.films = dataPeople.films ? dataPeople.films.map((films) => films.url) : []
@@ -49,12 +58,17 @@ export class PeoplesService {
             dataPeople.starships = dataPeople.starships ? dataPeople.starships.map((starships) => starships.url) : []
             dataPeople.images = dataPeople.images ? dataPeople.images.map((images) => images.url) : []
         })
-
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+ 
+        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount }); //sets meta information
 
         return new PageDto(people, pageMetaDto);
     }
 
+    /**
+     * Gets people by id from database and sets url for dauther entity
+     * @param idPeople for get data from database
+     * @returns people entity
+     */
     async getPeople(idPeople: number): Promise<ReturnPeopleDto> {
         let people: ReturnPeopleDto = await this.peopleRepository.findOne({
             relations: {
@@ -83,11 +97,20 @@ export class PeoplesService {
 
     }
 
+    /**
+     * Create index for new entity by last id from database
+     * @returns new id for entity
+     */
     async createIndexPeople(): Promise<number> {
         let itemCount: number = await this.peopleRepository.createQueryBuilder().getCount();
         return itemCount + 1;
     }
 
+    /**
+     * Update data and relations for people entity
+     * @param idPeople found people from database by id
+     * @param createPeople new data for update
+     */
     updatePeople(idPeople: number, createPeople: CreatePeopleDto) {
         const peoples = this.peopleRepository.create(createPeople)
 
@@ -103,6 +126,10 @@ export class PeoplesService {
         this.peopleRepository.save(peoples);
     }
 
+    /**
+     * Delete people by id from database
+     * @param idPeople for delete from database
+     */
     deletePeople(idPeople: number) {
         const people = this.peopleRepository.findOne({
             where: {

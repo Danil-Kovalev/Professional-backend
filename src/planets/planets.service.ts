@@ -19,9 +19,15 @@ export class PlanetsService {
         private planetsRepository: Repository<Planets>
     ) { }
 
-
+    /**
+     * Gets all planets with params and return spliced data by page
+     * @param pageOptionsDto number page for slice data by page
+     * @returns sliced data all planets
+     */
     async getPlanets(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnPlanetsDto>> {
-        let itemCount: number = await this.planetsRepository.createQueryBuilder().getCount();
+        let itemCount: number = await this.planetsRepository.createQueryBuilder().getCount(); //get count all planets from database
+
+        // send request to database for gets data by params
         let planets: ReturnPlanetsDto[] = await this.planetsRepository.find({
             relations: {
                 residents: true,
@@ -31,18 +37,24 @@ export class PlanetsService {
             take: pageOptionsDto.take
         });
 
-        if (planets === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
+        if (planets === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND) //check existence planets in case of absence returns exception
 
+         // sets url for daughter entity for receiving data instead it data
         planets.map((dataPlanets: ReturnPlanetsDto) => {
             dataPlanets.residents = dataPlanets.residents ? dataPlanets.residents.map((people) => people.url) : []
             dataPlanets.films = dataPlanets.films ? dataPlanets.films.map((films) => films.url) : []
         })
 
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount }); //sets meta information
 
         return new PageDto(planets, pageMetaDto);
     }
 
+    /**
+     * Gets planet by id from database and sets url for dauther entity
+     * @param idPlanet for get data from database
+     * @returns planet entity
+     */
     async getPlanet(idPlanet: number): Promise<ReturnPlanetsDto> {
         let planet: ReturnPlanetsDto = await this.planetsRepository.findOne({
             relations: {
@@ -62,11 +74,20 @@ export class PlanetsService {
         return planet;
     }
 
+    /**
+     * Create index for new entity by last id from database
+     * @returns new id for entity
+     */
     async createIndexPlanet(): Promise<number> {
         let itemCount: number = await this.planetsRepository.createQueryBuilder().getCount();
         return itemCount + 1;
     }
 
+    /**
+     * Update data and relations for planet entity
+     * @param idPlanets found planet from database by id
+     * @param createPlanets new data for update
+     */
     updatePlanets(idPlanets: number, createPlanets: CreatePlanetsDto) {
         const planets = this.planetsRepository.create(createPlanets)
 
@@ -78,6 +99,10 @@ export class PlanetsService {
         this.planetsRepository.save(planets)
     }
 
+    /**
+     * Delete planet by id from database
+     * @param idPlanet for delete from database
+     */
     deletePlanets(idPlanet: number) {
         const planet = this.planetsRepository.find({
             where: {

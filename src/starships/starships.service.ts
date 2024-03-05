@@ -19,8 +19,15 @@ export class StarshipsService {
         private starshipsRepository: Repository<Starships>
     ) { }
 
+    /**
+     * Gets all starships with params and return spliced data by page
+     * @param pageOptionsDto number page for slice data by page
+     * @returns sliced data all starships
+     */
     async getStarships(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnStarshipsDto>> {
-        let itemCount: number = await this.starshipsRepository.createQueryBuilder().getCount();
+        let itemCount: number = await this.starshipsRepository.createQueryBuilder().getCount(); //get count all starships from database
+
+        // send request to database for gets data by params
         let starships: ReturnStarshipsDto[] = await this.starshipsRepository.find({
             relations: {
                 pilots: true,
@@ -30,18 +37,24 @@ export class StarshipsService {
             take: pageOptionsDto.take
         });
 
-        if (starships === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
+        if (starships === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND) //check existence starships in case of absence returns exception
 
+        // sets url for daughter entity for receiving data instead it data
         starships.map((dataStarships: ReturnStarshipsDto) => {
             dataStarships.pilots = dataStarships.pilots ? dataStarships.pilots.map((peoples) => peoples.url) : []
             dataStarships.films = dataStarships.films ? dataStarships.films.map((films) => films.url) : []
         })
-
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+ 
+        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount }); //sets meta information
 
         return new PageDto(starships, pageMetaDto);
     }
 
+    /**
+     * Gets starship by id from database and sets url for dauther entity
+     * @param idStarship for get data from database
+     * @returns starship entity
+     */
     async getStarship(idStarship: number): Promise<ReturnStarshipsDto> {
         let starships: ReturnStarshipsDto = await this.starshipsRepository.findOne({
             relations: {
@@ -61,11 +74,20 @@ export class StarshipsService {
         return starships;
     }
 
+    /**
+     * Create index for new entity by last id from database
+     * @returns new id for entity
+     */
     async createIndexStarships(): Promise<number> {
         let itemCount: number = await this.starshipsRepository.createQueryBuilder().getCount()
         return itemCount + 1;
     }
 
+    /**
+     * Update data and relations for starship entity
+     * @param idStarships found starship from database by id
+     * @param createStarships new data for update
+     */
     updateStarships(idStarships: number, createStarships: CreateStarshipsDto) {
         const starships = this.starshipsRepository.create(createStarships)
 
@@ -77,12 +99,11 @@ export class StarshipsService {
         this.starshipsRepository.save(starships);
     }
 
+    /**
+     * Delete starship by id from database
+     * @param idStarship for delete from database
+     */
     deleteStarships(idStarship: number) {
-        const starship = this.starshipsRepository.findOne({
-            where: {
-                id: idStarship
-            }
-        })
         this.starshipsRepository.delete(idStarship)
     }
 }

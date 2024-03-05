@@ -18,6 +18,11 @@ import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 export class StarshipsController {
   constructor(private readonly starshipsService: StarshipsService) { }
 
+  /**
+   * Gets all starships from database and slice by number page
+   * @param pageOptionsDto number page
+   * @returns data starsships
+   */
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
   @ApiPaginatedResponse(ReturnStarshipsDto)
@@ -25,12 +30,21 @@ export class StarshipsController {
     return this.starshipsService.getStarships(pageOptionsDto)
   }
 
+   /**
+   * Gets one starship by id from database
+   * @param idStarship for found entity from database
+   * @returns data starship
+   */
   @UseInterceptors(ResponseInterceptor)
   @Get(':id')
   getStarship(@Param('id', ParseIntPipe) idStarship: number): Promise<ReturnStarshipsDto> {
     return this.starshipsService.getStarship(idStarship)
   }
 
+  /**
+   * Create new starship entity and save to database
+   * @param newStarships data new entity
+   */
   @Post()
   @ApiResponse({ status: 201, description: 'The starships has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -39,11 +53,20 @@ export class StarshipsController {
     this.starshipsService.updateStarships(indexNewStarships, newStarships)
   }
 
+  /**
+   * Update entity by id and save to database
+   * @param id for found starship from database
+   * @param editStarships new data for update entity in database
+   */
   @Put(':id')
   updateStarships(@Param('id', ParseIntPipe) id: number, @Body() editStarships: CreateStarshipsDto) {
     this.starshipsService.updateStarships(id, editStarships);
   }
 
+  /**
+   * Delete entity by id
+   * @param id for found starship in database and delete it
+   */
   @Delete(':id')
   deleteStarships(@Param('id', ParseIntPipe) id: number) {
     this.starshipsService.deleteStarships(id);

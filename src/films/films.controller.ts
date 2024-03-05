@@ -18,6 +18,11 @@ import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 export class FilmsController {
   constructor(private readonly filmsService: FilmsService) { }
 
+  /**
+   * Gets all films from database and slice by number page
+   * @param pageOptionsDto number page
+   * @returns data species
+   */
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
   @ApiPaginatedResponse(ReturnFilmsDto)
@@ -25,12 +30,21 @@ export class FilmsController {
     return this.filmsService.getFilms(pageOptionsDto);
   }
 
+  /**
+   * Gets one film by id from database
+   * @param idFilms for found entity from database
+   * @returns data film
+   */
   @UseInterceptors(ResponseInterceptor)
   @Get(':id')
   getFilm(@Param('id', ParseIntPipe) idFilms: number): Promise<ReturnFilmsDto> {
     return this.filmsService.getFilm(idFilms)
   }
 
+  /**
+   * Create new film entity and save to database
+   * @param newFilms data new entity
+   */
   @Post()
   @ApiResponse({ status: 201, description: 'The films has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -39,11 +53,20 @@ export class FilmsController {
     this.filmsService.updateFilms(indexNewFilms, newFilms);
   }
 
+  /**
+   * Update entity by id and save to database
+   * @param id for found film from database
+   * @param editFilm new data for update entity in database
+   */
   @Put(':id')
-  updateFilms(@Param('id', ParseIntPipe) id: number, @Body() editPeople: CreateFilmsDto) {
-    this.filmsService.updateFilms(id, editPeople);
+  updateFilms(@Param('id', ParseIntPipe) id: number, @Body() editFilm: CreateFilmsDto) {
+    this.filmsService.updateFilms(id, editFilm);
   }
 
+  /**
+   * Delete entity by id
+   * @param id for found film in database and delete it
+   */
   @Delete(':id')
   deleteFilms(@Param('id', ParseIntPipe) id: number) {
     this.filmsService.deleteFilms(id);

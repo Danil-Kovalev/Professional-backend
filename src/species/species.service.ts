@@ -24,8 +24,15 @@ export class SpeciesService {
         private planetsRepository: Repository<Planets>
     ) { }
 
+    /**
+     * Gets all species with params and return spliced data by page
+     * @param pageOptionsDto number page for slice data by page
+     * @returns sliced data all species
+     */
     async getSpecies(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnSpeciesDto>> {
-        let itemCount: number = await this.speciesRepository.createQueryBuilder().getCount();
+        let itemCount: number = await this.speciesRepository.createQueryBuilder().getCount(); //get count all vehicles from database
+
+        // send request to database for gets data by params
         let species: ReturnSpeciesDto[] = await this.speciesRepository.find({
             relations: {
                 planet: true,
@@ -36,8 +43,10 @@ export class SpeciesService {
             take: pageOptionsDto.take
         });
 
-        if (species === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
+        if (species === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND) //check existence species in case of absence returns exception
 
+        
+        // sets url for daughter entity for receiving data instead it data
         species.map((dataSpecies: ReturnSpeciesDto) => {
             let planet: Planets = dataSpecies.planet as Planets
             dataSpecies.planet = dataSpecies.planet as Planets ? planet.url : ""
@@ -45,11 +54,16 @@ export class SpeciesService {
             dataSpecies.films = dataSpecies.films ? dataSpecies.films.map((films) => films.url) : []
         })
 
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount }); //sets meta information
 
         return new PageDto(species, pageMetaDto);
     }
 
+    /**
+     * Gets specie by id from database and sets url for dauther entity
+     * @param idSpecie for get data from database
+     * @returns specie entity
+     */
     async getSpecie(idSpecie: number): Promise<ReturnSpeciesDto> {
         let species: ReturnSpeciesDto = await this.speciesRepository.findOne({
             relations: {
@@ -73,11 +87,20 @@ export class SpeciesService {
         return species;
     }
 
+    /**
+     * Create index for new entity by last id from database
+     * @returns new id for entity
+     */
     async createIndexSpecies(): Promise<number> {
         let itemCount: number = await this.speciesRepository.createQueryBuilder().getCount();
         return itemCount + 1;
     }
 
+    /**
+     * Update data and relations for specie entity
+     * @param idSpecies found specie from database by id
+     * @param createSpecies new data for update
+     */
     async updateSpecies(idSpecies: number, createSpecies: CreateSpeciesDto) {
         const species = this.speciesRepository.create(createSpecies)
 
@@ -96,6 +119,10 @@ export class SpeciesService {
         this.speciesRepository.save(species)
     }
 
+    /**
+     * Delete specie by id from database
+     * @param idSpecie for delete from database
+     */
     async deleteSpecies(idSpecie: number) {
         const specie = this.speciesRepository.findOne({
             where: {

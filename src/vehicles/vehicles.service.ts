@@ -19,29 +19,42 @@ export class VehiclesService {
         private vehiclesRepository: Repository<Vehicles>
     ) { }
 
+    /**
+     * Gets all vehicles with params and return spliced data by page
+     * @param pageOptionsDto number page for slice data by page
+     * @returns sliced data all vehicles
+     */
     async getVehicles(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnVehiclesDto>> {
-        let itemCount: number = await this.vehiclesRepository.createQueryBuilder().getCount();
+        let itemCount: number = await this.vehiclesRepository.createQueryBuilder().getCount(); //get count all vehicles from database
+
+        // send request to database for gets data by params
         let vehicles: ReturnVehiclesDto[] = await this.vehiclesRepository.find({
             relations: {
                 pilots: true,
                 films: true
-            }
+            },
+            skip: pageOptionsDto.skip,
+            take: pageOptionsDto.take
         });
 
-        if (vehicles === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND)
+        if (vehicles === null) throw new HttpException('Entities not exist!', HttpStatus.NOT_FOUND) //check existence vehicles in case of absence returns exception
 
-        vehicles = vehicles.slice(pageOptionsDto.skip, pageOptionsDto.skip + pageOptionsDto.take);
-
+        // sets url for daughter entity for receiving data instead it data
         vehicles.map((dataVehicles: ReturnVehiclesDto) => {
             dataVehicles.pilots = dataVehicles.pilots ? dataVehicles.pilots.map((peoples) => peoples.url) : []
             dataVehicles.films = dataVehicles.films ? dataVehicles.films.map((films) => films.url) : []
         })
 
-        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+        const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount }); //sets meta information
 
         return new PageDto(vehicles, pageMetaDto);
     }
 
+    /**
+     * Gets vehicle by id from database and sets url for dauther entity
+     * @param idVehicle for get data from database
+     * @returns vehicle entity
+     */
     async getVehicle(idVehicle: number): Promise<ReturnVehiclesDto> {
         let vehicle: ReturnVehiclesDto = await this.vehiclesRepository.findOne({
             relations: {
@@ -61,11 +74,20 @@ export class VehiclesService {
         return vehicle;
     }
 
+    /**
+     * Create index for new entity by last id from database
+     * @returns new id for entity
+     */
     async createIndexVehicles(): Promise<number> {
         let itemCount: number = await this.vehiclesRepository.createQueryBuilder().getCount()
         return itemCount + 1;
     }
 
+    /**
+     * Update data and relations for vehicle entity
+     * @param idVehicles found vehicle from database by id
+     * @param createVehicles new data for update
+     */
     updateVehicles(idVehicles: number, createVehicles: CreateVehiclesDto) {
         const vehicles = this.vehiclesRepository.create(createVehicles)
 
@@ -77,6 +99,10 @@ export class VehiclesService {
         this.vehiclesRepository.save(vehicles);
     }
 
+    /**
+     * Delete vehicle by id from database
+     * @param idVehicle for delete from database
+     */
     deleteVehicles(idVehicle: number) {
         const vehicle = this.vehiclesRepository.findOne({
             where: {

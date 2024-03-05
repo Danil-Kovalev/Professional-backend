@@ -11,12 +11,23 @@ export class ImagesController {
 
     constructor(private readonly imagesService: ImagesService) { }
     
+    /**
+     * Get image by path file and send it like response
+     * @param idImage id for found certain image and get file name
+     * @param res response file, which get from folder
+     * @returns file from folder
+     */
     @Get(':id')
     async getImage(@Param('id', ParseIntPipe) idImage: number, @Res() res) {
         let nameFile = await this.imagesService.getImage(idImage);
         return res.sendFile(nameFile, {root: './uploads'})
     }
 
+    /**
+     * Create new image and save it to storage folder
+     * @param data id people entity for create relation
+     * @param file which need save in storage
+     */
     @Post()
     @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileInterceptor('file', {
@@ -28,8 +39,12 @@ export class ImagesController {
         this.imagesService.createImage(file, data, newIndexImage);
     }
 
+    /**
+     * Delete file form storage and image data from database
+     * @param idImage for delete certain image
+     */
     @Delete(':id')
     async deleteImage(@Param('id', ParseIntPipe) idImage: number) {
-        return this.imagesService.deleteImage(idImage);
+        this.imagesService.deleteImage(idImage);
     }
 }

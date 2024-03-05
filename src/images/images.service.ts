@@ -16,6 +16,11 @@ export class ImagesService {
         private peoplesRepository: Repository<People>
     ) { }
 
+    /**
+     * Send request to database, that get file name by id and return this file name
+     * @param idImage id for get image
+     * @returns 
+     */
     async getImage(idImage: number): Promise<string> {
         let file = await this.imagesRepository.findOne({
             where: {
@@ -27,6 +32,12 @@ export class ImagesService {
 
     }
 
+    /**
+     * Send id, file name and entity for relation to database
+     * @param file for get new genereted name and send to database
+     * @param data id people entity
+     * @param idImage generated id for new image
+     */
     async createImage(file: Express.Multer.File, data: CreateImagesDto, idImage: number) {
         let fileNameImage: string = file.filename;
 
@@ -49,19 +60,26 @@ export class ImagesService {
         this.imagesRepository.save(newImage);
     }
 
-
+    /**
+     * Create id for image by last id in database
+     * @returns generated id
+     */
     async createIndexImages(): Promise<number> {
         let itemCount: number = await this.imagesRepository.createQueryBuilder().getCount();
         return itemCount + 1;
     }
 
+    /**
+     * Delete image by id from database
+     * @param idImage id for delete concrete image from databse
+     */
     async deleteImage(idImage: number) {
         let file = await this.imagesRepository.findOne({
             where: {
                 id: idImage
             }
         })
-        unlink('./uploads/'.concat(file.fileName), () => {})
+        unlink('./uploads/'.concat(file.fileName), () => { })
         this.imagesRepository.remove(file);
     }
 
