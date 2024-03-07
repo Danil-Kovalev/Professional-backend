@@ -7,10 +7,13 @@ export class Images {
     id: number
 
     @Column()
-    fileName: string
+    name: string
 
     @Column()
-    url: string
+    urlImage: string
+
+    @Column()
+    urlAPI: string
 
     @ManyToOne(() => People, (people) => people.images, {
         onDelete: 'CASCADE'

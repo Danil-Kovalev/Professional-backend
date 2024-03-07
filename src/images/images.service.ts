@@ -5,9 +5,13 @@ import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
 import { Images } from 'src/entity/images.entity';
 import { People } from 'src/entity/people.entity';
 import { Repository } from 'typeorm';
+import * as AWS from 'aws-sdk'
+import { formingUrl } from 'src/utils/formingUrl';
+import { extname } from 'path';
 
 @Injectable()
 export class ImagesService {
+
     constructor(
         @InjectRepository(Images)
         private imagesRepository: Repository<Images>,
@@ -28,7 +32,7 @@ export class ImagesService {
             }
         })
         if (file === null) throw new HttpException('File not exist', HttpStatus.NOT_FOUND)
-        else return file.fileName;
+        else return file.name;
 
     }
 
@@ -39,7 +43,24 @@ export class ImagesService {
      * @param idImage generated id for new image
      */
     async createImage(file: Express.Multer.File, data: CreateImagesDto, idImage: number) {
-        let fileNameImage: string = file.filename;
+        let fileNewName: string = `${Date.now()}-img${extname(file.originalname)}`;
+        let s3 = new AWS.S3({
+            accessKeyId: process.env.AWS_KEY,
+            secretAccessKey: process.env.AWS_SECRET_KEY
+        });
+
+        const params = {
+            Bucket: process.env.AWS_BUCKET,
+            Key: String(fileNewName),
+            Body: file.buffer,
+            ContentType: file.mimetype,
+            ContentDisposition: 'inline',
+            CreateBucketConfiguration: {
+                LocationConstraint: 'eu-north-1',
+            },
+        };
+
+        let s3Response = await s3.upload(params).promise();
 
         let peoples = await this.peoplesRepository.findOne({
             where: {
@@ -49,15 +70,13 @@ export class ImagesService {
 
         let images = this.imagesRepository.create();
 
+        images.id = idImage
+        images.name = fileNewName
+        images.urlAPI = formingUrl('images', idImage)
+        images.urlImage = s3Response.Location
         images.people = peoples;
 
-        let newImage = {
-            id: idImage,
-            fileName: fileNameImage,
-            peoples
-        }
-
-        this.imagesRepository.save(newImage);
+        this.imagesRepository.save(images);
     }
 
     /**
@@ -74,13 +93,22 @@ export class ImagesService {
      * @param idImage id for delete concrete image from databse
      */
     async deleteImage(idImage: number) {
-        let file = await this.imagesRepository.findOne({
+        let image = await this.imagesRepository.findOne({
             where: {
                 id: idImage
             }
         })
-        unlink('./uploads/'.concat(file.fileName), () => { })
-        this.imagesRepository.remove(file);
+
+        const s3 = new AWS.S3({
+            accessKeyId: process.env.AWS_KEY,
+            secretAccessKey: process.env.AWS_SECRET_KEY
+        });
+        
+        await s3.deleteObject({
+            Bucket: process.env.AWS_BUCKET,
+            Key: image.name
+        }).promise();
+        this.imagesRepository.remove(image);
     }
 
 }
