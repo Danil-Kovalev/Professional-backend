@@ -12,28 +12,44 @@ import { extname } from 'path';
 @Injectable()
 export class ImagesService {
 
+    private readonly s3: AWS.S3
+
     constructor(
         @InjectRepository(Images)
         private imagesRepository: Repository<Images>,
 
         @InjectRepository(People)
         private peoplesRepository: Repository<People>
-    ) { }
+    ) {
+        this.s3 = new AWS.S3({
+            accessKeyId: process.env.AWS_KEY,
+            secretAccessKey: process.env.AWS_SECRET_KEY
+        });
+    }
 
     /**
      * Send request to database, that get file name by id and return this file name
      * @param idImage id for get image
      * @returns 
      */
-    async getImage(idImage: number): Promise<string> {
+    async getImage(idImage: number) {
         let file = await this.imagesRepository.findOne({
             where: {
                 id: idImage
             }
         })
-        if (file === null) throw new HttpException('File not exist', HttpStatus.NOT_FOUND)
-        else return file.name;
 
+        const params = {
+            Bucket: process.env.AWS_BUCKET,
+            Key: file.name
+        }
+        if (file) {
+            const stream = await this.s3.getObject(params).createReadStream();
+            return {
+                stream,
+                info: file,
+            }
+        }
     }
 
     /**
@@ -103,7 +119,7 @@ export class ImagesService {
             accessKeyId: process.env.AWS_KEY,
             secretAccessKey: process.env.AWS_SECRET_KEY
         });
-        
+
         await s3.deleteObject({
             Bucket: process.env.AWS_BUCKET,
             Key: image.name

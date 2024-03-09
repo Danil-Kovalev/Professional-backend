@@ -4,13 +4,14 @@ import { ImagesService } from './images.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
 import { imageFilter } from 'src/utils/image-storage';
+import { Response } from 'express';
 
 @ApiTags('Images')
 @Controller('images')
 export class ImagesController {
 
     constructor(private readonly imagesService: ImagesService) { }
-    
+
     /**
      * Get image by path file and send it like response
      * @param idImage id for found certain image and get file name
@@ -18,9 +19,11 @@ export class ImagesController {
      * @returns file from folder
      */
     @Get(':id')
-    async getImage(@Param('id', ParseIntPipe) idImage: number, @Res() res) {
+    async getImage(@Param('id', ParseIntPipe) idImage: number, @Res() res: Response) {
         let file = await this.imagesService.getImage(idImage);
-        return res.sendFile(file)
+        res.attachment(file.info.name)
+        
+        file.stream.pipe(res)
     }
 
     /**
