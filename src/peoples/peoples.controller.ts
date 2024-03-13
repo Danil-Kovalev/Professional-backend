@@ -1,5 +1,6 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -11,6 +12,7 @@ import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.deco
 import { CreatePeopleDto } from 'src/dto/peoplesDto/createPeople.dto';
 import { ReturnPeopleDto } from 'src/dto/peoplesDto/returnPeople.dto';
 import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 
 @ApiTags('Peoples')
 @Controller('people')
