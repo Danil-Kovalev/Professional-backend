@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
   ApiResponse,
   ApiTags,
@@ -11,9 +11,14 @@ import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.deco
 import { CreateStarshipsDto } from 'src/dto/starshipsDto/createStarshipsDto.dto';
 import { ReturnStarshipsDto } from 'src/dto/starshipsDto/returnStarshipsDto.dto';
 import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { Role } from 'src/auth/roles/role.enum';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('Starships')
 @Controller('starships')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class StarshipsController {
   constructor(private readonly starshipsService: StarshipsService) { }
@@ -24,6 +29,7 @@ export class StarshipsController {
    * @returns data starsships
    */
   @Get()
+  @Roles(Role.Admin, Role.User)
   @UseInterceptors(ExcludeNullInterceptor)
   @ApiPaginatedResponse(ReturnStarshipsDto)
   getStarships(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnStarshipsDto>> {
@@ -35,8 +41,9 @@ export class StarshipsController {
    * @param idStarship for found entity from database
    * @returns data starship
    */
-  @UseInterceptors(ResponseInterceptor)
   @Get(':id')
+  @Roles(Role.Admin, Role.User)
+  @UseInterceptors(ResponseInterceptor)
   getStarship(@Param('id', ParseIntPipe) idStarship: number): Promise<ReturnStarshipsDto> {
     return this.starshipsService.getStarship(idStarship)
   }
@@ -46,6 +53,7 @@ export class StarshipsController {
    * @param newStarships data new entity
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiResponse({ status: 201, description: 'The starships has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createStarships(@Body() newStarships: CreateStarshipsDto) {
@@ -59,6 +67,7 @@ export class StarshipsController {
    * @param editStarships new data for update entity in database
    */
   @Put(':id')
+  @Roles(Role.Admin)
   updateStarships(@Param('id', ParseIntPipe) id: number, @Body() editStarships: CreateStarshipsDto) {
     this.starshipsService.updateStarships(id, editStarships);
   }
@@ -68,6 +77,7 @@ export class StarshipsController {
    * @param id for found starship in database and delete it
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   deleteStarships(@Param('id', ParseIntPipe) id: number) {
     this.starshipsService.deleteStarships(id);
   }

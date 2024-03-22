@@ -1,8 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsString } from "class-validator";
+import { Role } from "src/auth/roles/role.enum";
 
-export class CreateUserDto {
+export class UserDto {
     @Type(() => String)
     @IsString()
     @ApiProperty({required: true})

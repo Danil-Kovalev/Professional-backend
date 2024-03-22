@@ -13,9 +13,13 @@ import { CreatePeopleDto } from 'src/dto/peoplesDto/createPeople.dto';
 import { ReturnPeopleDto } from 'src/dto/peoplesDto/returnPeople.dto';
 import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { Role } from 'src/auth/roles/role.enum';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('Peoples')
 @Controller('people')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class PeoplesController {
   constructor(private readonly peoplesService: PeoplesService) { }
@@ -28,6 +32,7 @@ export class PeoplesController {
   @Get()
   @UseInterceptors(ExcludeNullInterceptor)
   @ApiPaginatedResponse(ReturnPeopleDto)
+  @Roles(Role.User, Role.Admin)
   getPeoples(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnPeopleDto>> {
     return this.peoplesService.getPeoples(pageOptionsDto);
   }
@@ -39,6 +44,7 @@ export class PeoplesController {
    */
   @UseInterceptors(ResponseInterceptor)
   @Get(':id')
+  @Roles(Role.User, Role.Admin)
   getPeople(@Param('id', ParseIntPipe) idPeople: number): Promise<ReturnPeopleDto> {
     return this.peoplesService.getPeople(idPeople)
   }
@@ -50,6 +56,7 @@ export class PeoplesController {
   @Post()
   @ApiResponse({ status: 201, description: 'The people has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @Roles(Role.Admin)
   async createPeoples(@Body() newPeople: CreatePeopleDto) {
     let indexNewPeople: number = await this.peoplesService.createIndexPeople();
     this.peoplesService.updatePeople(indexNewPeople, newPeople);
@@ -61,6 +68,7 @@ export class PeoplesController {
    * @param editPeople new data for update entity in database
    */
   @Put(':id')
+  @Roles(Role.Admin)
   updatePeople(@Param('id', ParseIntPipe) id: number, @Body() editPeople: CreatePeopleDto) {
     this.peoplesService.updatePeople(id, editPeople);
   }
@@ -70,6 +78,7 @@ export class PeoplesController {
    * @param id for found people in database and delete it
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   deletePeople(@Param('id', ParseIntPipe) id: number) {
     this.peoplesService.deletePeople(id);
   }

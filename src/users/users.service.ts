@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/auth/roles/role.enum';
 import { CreateUserDto } from 'src/dto/usersDto/createUserDto.dto';
+import { ReturnUserDto } from 'src/dto/usersDto/returnUserDto.dto';
 import { Users } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 
@@ -12,7 +14,7 @@ export class UsersService {
     private usersRepository: Repository<Users>
     ) { }
 
-  async findOne(usernameUser: string): Promise<CreateUserDto> {
+  async findOne(usernameUser: string): Promise<ReturnUserDto> {
     let users = this.usersRepository.findOne({
       where: {
         username: usernameUser
@@ -39,9 +41,10 @@ export class UsersService {
     return itemCount + 1;
 }
 
-  async registerUser(idUser: number, newUser: CreateUserDto) {
+  async registerUser(idUser: number, newUser: CreateUserDto, role: Role) {
     let users = this.usersRepository.create(newUser);
     users.id = idUser;
+    users.role = role;
     this.usersRepository.save(users);
   }
 }

@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
   ApiResponse,
   ApiTags,
@@ -11,9 +11,14 @@ import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.deco
 import { CreateSpeciesDto } from 'src/dto/speciesDto/createSpeciesDto.dto';
 import { ReturnSpeciesDto } from 'src/dto/speciesDto/returnSpeciesDto.dto';
 import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { Role } from 'src/auth/roles/role.enum';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('Species')
 @Controller('species')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class SpeciesController {
   constructor(private readonly speciesService: SpeciesService) { }
@@ -24,6 +29,7 @@ export class SpeciesController {
    * @returns data species
    */
   @Get()
+  @Roles(Role.Admin, Role.User)
   @UseInterceptors(ExcludeNullInterceptor)
   @ApiPaginatedResponse(ReturnSpeciesDto)
   getSpecies(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnSpeciesDto>> {
@@ -35,8 +41,9 @@ export class SpeciesController {
    * @param idSpecie for found entity from database
    * @returns data specie
    */
-  @UseInterceptors(ResponseInterceptor)
   @Get(':id')
+  @Roles(Role.Admin, Role.User)
+  @UseInterceptors(ResponseInterceptor)
   getSpecie(@Param('id', ParseIntPipe) idSpecie: number): Promise<ReturnSpeciesDto> {
     return this.speciesService.getSpecie(idSpecie)
   }
@@ -46,6 +53,7 @@ export class SpeciesController {
    * @param newSpecies data new entity
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiResponse({ status: 201, description: 'The species has been successfully created.' })
   @ApiResponse({ status: 404, description: 'Not found.' })
   async createSpecies(@Body() newSpecies: CreateSpeciesDto) {
@@ -59,6 +67,7 @@ export class SpeciesController {
    * @param editSpecies new data for update entity in database
    */
   @Put(':id')
+  @Roles(Role.Admin)
   updateSpecies(@Param('id', ParseIntPipe) id: number, @Body() editSpecies: CreateSpeciesDto) {
     this.speciesService.updateSpecies(id, editSpecies)
   }
@@ -68,6 +77,7 @@ export class SpeciesController {
    * @param id for found specie in database and delete it
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   deleteSpecies(@Param('id', ParseIntPipe) id: number) {
     this.speciesService.deleteSpecies(id);
   }

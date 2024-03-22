@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/dto/usersDto/createUserDto.dto';
 import * as bcrypt from 'bcrypt'
+import { ReturnUserDto } from 'src/dto/usersDto/returnUserDto.dto';
 
 @Injectable()
 export class AuthService {
@@ -10,16 +11,16 @@ export class AuthService {
 
   async signIn(user: CreateUserDto): Promise<{ token }> {
     let idUser = await this.usersService.getIdUser(user.username)
-    const userLogin = await this.usersService.findOne(user.username);
+    const userLogin: ReturnUserDto = await this.usersService.findOne(user.username);
 
-    const payload = { sub: idUser, username: user.username };
+    const payload = { sub: idUser, username: userLogin.username, role: userLogin.role};
     const token = await this.jwtService.signAsync(payload, { secret: `${process.env.JWT_SECRET}` })
     return { token };
 
   }
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+    const user: ReturnUserDto = await this.usersService.findOne(username);
     if (user && await this.verifyPassword(pass, user.password)) {
       const { password, ...result } = user;
       return result;
