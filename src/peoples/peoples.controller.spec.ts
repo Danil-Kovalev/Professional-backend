@@ -72,23 +72,7 @@ describe('PeoplesController', () => {
 
     describe('createPeople', () => {
         it('should be create people', async () => {
-            const newPeople: CreatePeopleDto = {
-                name: "Danylo",
-                height: 180,
-                mass: 87,
-                hair_color: "brown",
-                skin_color: "white",
-                eye_color: "brown",
-                birth_year: "13.06.2003",
-                gender: "male",
-                url: 'http://localhost:4000/peoples/1',
-                homeworldIds: [],
-                filmsIds: [],
-                speciesIds: [],
-                vehiclesIds: [],
-                starshipsIds: [],
-                imagesIds: []
-            }
+            const newPeople: CreatePeopleDto = { ...mockPeople }
 
             const result = await service.createPeople(newPeople);
 
