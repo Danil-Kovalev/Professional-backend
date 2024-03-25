@@ -1,21 +1,18 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PeoplesService } from './peoples.service';
-import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
-import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
-import { PageDto } from 'src/dto/pageDto/page.dto';
-import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
-import { CreatePeopleDto } from 'src/dto/peoplesDto/createPeople.dto';
-import { ReturnPeopleDto } from 'src/dto/peoplesDto/returnPeople.dto';
-import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import { Role } from 'src/auth/roles/role.enum';
-import { Roles } from 'src/auth/roles/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
+import { RolesGuard } from '../auth/guards/roles.guards';
+import { ExcludeNullInterceptor } from '../interceptors/excludeNullException.interceptor';
+import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator';
+import { ReturnPeopleDto } from '../dto/peoplesDto/returnPeople.dto';
+import { Roles } from '../auth/roles/roles.decorator';
+import { Role } from '../auth/roles/role.enum';
+import { PageOptionsDto } from '../dto/pageDto/page-options.dto';
+import { PageDto } from '../dto/pageDto/page.dto';
+import { ResponseInterceptor } from '../interceptors/baseResponse.interceptor';
+import { CreatePeopleDto } from '../dto/peoplesDto/createPeople.dto';
+
 
 @ApiTags('Peoples')
 @Controller('people')
@@ -58,8 +55,7 @@ export class PeoplesController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Roles(Role.Admin)
   async createPeoples(@Body() newPeople: CreatePeopleDto) {
-    let indexNewPeople: number = await this.peoplesService.createIndexPeople();
-    this.peoplesService.updatePeople(indexNewPeople, newPeople);
+    return this.peoplesService.createPeople(newPeople);
   }
 
   /**
@@ -70,7 +66,7 @@ export class PeoplesController {
   @Put(':id')
   @Roles(Role.Admin)
   updatePeople(@Param('id', ParseIntPipe) id: number, @Body() editPeople: CreatePeopleDto) {
-    this.peoplesService.updatePeople(id, editPeople);
+    return this.peoplesService.updatePeople(id, editPeople);
   }
 
   /**
@@ -80,6 +76,6 @@ export class PeoplesController {
   @Delete(':id')
   @Roles(Role.Admin)
   deletePeople(@Param('id', ParseIntPipe) id: number) {
-    this.peoplesService.deletePeople(id);
+    return this.peoplesService.deletePeople(id);
   }
 }

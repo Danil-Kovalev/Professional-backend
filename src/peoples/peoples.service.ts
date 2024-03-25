@@ -2,19 +2,20 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { PageMetaDto } from 'src/dto/pageDto/page-meta.dto';
+import { PageMetaDto } from '../dto/pageDto/page-meta.dto';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
-import { PageDto } from 'src/dto/pageDto/page.dto';
-import { People } from 'src/entity/people.entity';
-import { CreatePeopleDto } from 'src/dto/peoplesDto/createPeople.dto';
-import { Films } from 'src/entity/films.entity';
-import { Planets } from 'src/entity/planets.entity';
-import { Species } from 'src/entity/species.entity';
-import { Vehicles } from 'src/entity/vehicles.entity';
-import { Starships } from 'src/entity/starships.entity';
-import { Images } from 'src/entity/images.entity';
-import { formingUrl } from 'src/utils/formingUrl';
-import { ReturnPeopleDto } from 'src/dto/peoplesDto/returnPeople.dto';
+import { PageDto } from '../dto/pageDto/page.dto';
+import { People } from '../entity/people.entity';
+import { ReturnPeopleDto } from '../dto/peoplesDto/returnPeople.dto';
+import { CreatePeopleDto } from '../dto/peoplesDto/createPeople.dto';
+import { Planets } from '../entity/planets.entity';
+import { Films } from '../entity/films.entity';
+import { Species } from '../entity/species.entity';
+import { Vehicles } from '../entity/vehicles.entity';
+import { Starships } from '../entity/starships.entity';
+import { Images } from '../entity/images.entity';
+import { formingUrl } from '../utils/formingUrl';
+
 
 @Injectable()
 export class PeoplesService {
@@ -97,6 +98,11 @@ export class PeoplesService {
 
     }
 
+    async createPeople(newPeople: CreatePeopleDto) {
+        let index = await this.createIndexPeople();
+        return this.updatePeople(index, newPeople)
+    }
+
     /**
      * Create index for new entity by last id from database
      * @returns new id for entity
@@ -123,7 +129,7 @@ export class PeoplesService {
         peoples.images = createPeople.imagesIds.map(id => ({ ...new Images(), id }))
         peoples.url = formingUrl('peoples', idPeople)
 
-        this.peopleRepository.save(peoples);
+        return this.peopleRepository.save(peoples);
     }
 
     /**
@@ -140,5 +146,7 @@ export class PeoplesService {
         if(people === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         this.peopleRepository.delete(idPeople)
+
+        return { "success": true }
     }
 }
