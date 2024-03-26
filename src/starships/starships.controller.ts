@@ -1,20 +1,24 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import {
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
+import { RolesGuard } from '../auth/guards/roles.guards';
+
+import { Role } from '../auth/roles/role.enum';
+
+import { Roles } from '../auth/roles/roles.decorator';
+import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator';
+
+import { PageOptionsDto } from '../dto/pageDto/page-options.dto';
+import { PageDto } from '../dto/pageDto/page.dto';
+import { CreateStarshipsDto } from './dto/createStarshipsDto.dto';
+import { ReturnStarshipsDto } from './dto/returnStarshipsDto.dto';
+
+import { ResponseInterceptor } from '../interceptors/baseResponse.interceptor';
+import { ExcludeNullInterceptor } from '../interceptors/excludeNullException.interceptor';
+
 import { StarshipsService } from './starships.service';
-import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
-import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
-import { PageDto } from 'src/dto/pageDto/page.dto';
-import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
-import { CreateStarshipsDto } from 'src/dto/starshipsDto/createStarshipsDto.dto';
-import { ReturnStarshipsDto } from 'src/dto/starshipsDto/returnStarshipsDto.dto';
-import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
-import { Roles } from 'src/auth/roles/roles.decorator';
-import { Role } from 'src/auth/roles/role.enum';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import { RolesGuard } from 'src/auth/guards/roles.guards';
+
 
 @ApiTags('Starships')
 @Controller('starships')
@@ -57,8 +61,7 @@ export class StarshipsController {
   @ApiResponse({ status: 201, description: 'The starships has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createStarships(@Body() newStarships: CreateStarshipsDto) {
-    let indexNewStarships: number = await this.starshipsService.createIndexStarships();
-    this.starshipsService.updateStarships(indexNewStarships, newStarships)
+    return this.starshipsService.createStarship(newStarships)
   }
 
   /**
@@ -69,7 +72,7 @@ export class StarshipsController {
   @Put(':id')
   @Roles(Role.Admin)
   updateStarships(@Param('id', ParseIntPipe) id: number, @Body() editStarships: CreateStarshipsDto) {
-    this.starshipsService.updateStarships(id, editStarships);
+    return this.starshipsService.updateStarships(id, editStarships);
   }
 
   /**
@@ -79,6 +82,6 @@ export class StarshipsController {
   @Delete(':id')
   @Roles(Role.Admin)
   deleteStarships(@Param('id', ParseIntPipe) id: number) {
-    this.starshipsService.deleteStarships(id);
+    return this.starshipsService.deleteStarships(id);
   }
 }

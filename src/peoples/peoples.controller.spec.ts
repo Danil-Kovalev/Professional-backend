@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PeoplesController } from './peoples.controller'
 import { PeoplesService } from './peoples.service';
-import { CreatePeopleDto } from '../dto/peoplesDto/createPeople.dto';
+import { CreatePeopleDto } from './dto/createPeople.dto';
 import { PassportModule } from '@nestjs/passport';
 
 describe('PeoplesController', () => {

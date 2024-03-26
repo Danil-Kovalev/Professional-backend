@@ -1,21 +1,25 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import {
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
+import { RolesGuard } from '../auth/guards/roles.guards';
+
+import { Role } from '../auth/roles/role.enum';
+
+import { Roles } from '../auth/roles/roles.decorator';
+import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator';
+
+import { PageOptionsDto } from '../dto/pageDto/page-options.dto';
+import { PageDto } from '../dto/pageDto/page.dto';
+import { CreateVehiclesDto } from './dto/createVehiclesDto.dto';
+import { ReturnVehiclesDto } from './dto/returnVehiclesDto.dto';
+
+import { ResponseInterceptor } from '../interceptors/baseResponse.interceptor';
+import { ExcludeNullInterceptor } from '../interceptors/excludeNullException.interceptor';
+
 import { VehiclesService } from './vehicles.service';
-import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
-import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
-import { PageDto } from 'src/dto/pageDto/page.dto';
-import { CreateVehiclesDto } from 'src/dto/vehiclesDto/createVehiclesDto.dto';
-import { ReturnVehiclesDto } from 'src/dto/vehiclesDto/returnVehiclesDto.dto';
-import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
-import { Roles } from 'src/auth/roles/roles.decorator';
-import { Role } from 'src/auth/roles/role.enum';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import { RolesGuard } from 'src/auth/guards/roles.guards';
+
+
 
 @ApiTags('Vehicles')
 @Controller('vehicles')
@@ -58,8 +62,7 @@ export class VehiclesController {
   @ApiResponse({ status: 201, description: 'The vehicles has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createVehicles(@Body() newVehicles: CreateVehiclesDto) {
-    let indexNewVehicles: number = await this.vehiclesService.createIndexVehicles();
-    this.vehiclesService.updateVehicles(indexNewVehicles, newVehicles)
+   return this.vehiclesService.createVehicle(newVehicles)
   }
 
   /**
@@ -70,7 +73,7 @@ export class VehiclesController {
   @Put(':id')
   @Roles(Role.Admin)
   updateVehicles(@Param('id', ParseIntPipe) id: number, @Body() editVehicles: CreateVehiclesDto) {
-    this.vehiclesService.updateVehicles(id, editVehicles)
+    return this.vehiclesService.updateVehicles(id, editVehicles)
   }
 
   /**
@@ -80,6 +83,6 @@ export class VehiclesController {
   @Delete(':id')
   @Roles(Role.Admin)
   deleteVehicles(@Param('id', ParseIntPipe) id: number) {
-    this.vehiclesService.deleteVehicles(id)
+    return this.vehiclesService.deleteVehicles(id)
   }
 }

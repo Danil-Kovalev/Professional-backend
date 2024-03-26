@@ -1,20 +1,23 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import {
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { SpeciesService } from './species.service';
-import { ExcludeNullInterceptor } from 'src/interceptors/excludeNullException.interceptor';
-import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
-import { PageDto } from 'src/dto/pageDto/page.dto';
-import { ApiPaginatedResponse } from 'src/decorators/api-paginated-response.decorator';
-import { CreateSpeciesDto } from 'src/dto/speciesDto/createSpeciesDto.dto';
-import { ReturnSpeciesDto } from 'src/dto/speciesDto/returnSpeciesDto.dto';
-import { ResponseInterceptor } from 'src/interceptors/baseResponse.interceptor';
-import { Roles } from 'src/auth/roles/roles.decorator';
-import { Role } from 'src/auth/roles/role.enum';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import { RolesGuard } from 'src/auth/guards/roles.guards';
+
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
+import { RolesGuard } from '../auth/guards/roles.guards';
+
+import { Role } from '../auth/roles/role.enum';
+
+import { Roles } from '../auth/roles/roles.decorator';
+import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator';
+
+import { PageOptionsDto } from '../dto/pageDto/page-options.dto';
+import { PageDto } from '../dto/pageDto/page.dto';
+import { CreateSpeciesDto } from './dto/createSpeciesDto.dto';
+import { ReturnSpeciesDto } from './dto/returnSpeciesDto.dto';
+
+import { ResponseInterceptor } from '../interceptors/baseResponse.interceptor';
+import { ExcludeNullInterceptor } from '../interceptors/excludeNullException.interceptor';
 
 @ApiTags('Species')
 @Controller('species')
@@ -57,8 +60,7 @@ export class SpeciesController {
   @ApiResponse({ status: 201, description: 'The species has been successfully created.' })
   @ApiResponse({ status: 404, description: 'Not found.' })
   async createSpecies(@Body() newSpecies: CreateSpeciesDto) {
-    let indexNewSpecies: number = await this.speciesService.createIndexSpecies();
-    this.speciesService.updateSpecies(indexNewSpecies, newSpecies);
+    return this.speciesService.createSpecie(newSpecies)
   }
 
    /**
@@ -69,7 +71,7 @@ export class SpeciesController {
   @Put(':id')
   @Roles(Role.Admin)
   updateSpecies(@Param('id', ParseIntPipe) id: number, @Body() editSpecies: CreateSpeciesDto) {
-    this.speciesService.updateSpecies(id, editSpecies)
+    return this.speciesService.updateSpecies(id, editSpecies)
   }
 
   /**
@@ -79,6 +81,6 @@ export class SpeciesController {
   @Delete(':id')
   @Roles(Role.Admin)
   deleteSpecies(@Param('id', ParseIntPipe) id: number) {
-    this.speciesService.deleteSpecies(id);
+    return this.speciesService.deleteSpecies(id);
   }
 }

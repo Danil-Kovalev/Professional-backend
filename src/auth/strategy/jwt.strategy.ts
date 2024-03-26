@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from 'src/users/users.service';
-import { ReturnUserDto } from 'src/dto/usersDto/returnUserDto.dto';
+import { ReturnUserDto } from 'src/users/dto/returnUserDto.dto';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

@@ -1,12 +1,12 @@
 import { applyDecorators, Type } from "@nestjs/common";
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from "@nestjs/swagger";
 import { PageDto } from "../dto/pageDto/page.dto";
-import { ReturnPeopleDto } from "../dto/peoplesDto/returnPeople.dto";
-import { ReturnPlanetsDto } from "../dto/planetsDto/returnPlanetsDto.dto";
-import { ReturnFilmsDto } from "../dto/filmsDto/returnFilmsDto.dto";
-import { ReturnSpeciesDto } from "../dto/speciesDto/returnSpeciesDto.dto";
-import { ReturnStarshipsDto } from "../dto/starshipsDto/returnStarshipsDto.dto";
-import { ReturnVehiclesDto } from "../dto/vehiclesDto/returnVehiclesDto.dto";
+import { ReturnPeopleDto } from "../peoples/dto/returnPeople.dto";
+import { ReturnPlanetsDto } from "../planets/dto/returnPlanetsDto.dto";
+import { ReturnFilmsDto } from "../films/dto/returnFilmsDto.dto";
+import { ReturnSpeciesDto } from "../species/dto/returnSpeciesDto.dto";
+import { ReturnStarshipsDto } from "../starships/dto/returnStarshipsDto.dto";
+import { ReturnVehiclesDto } from "../vehicles/dto/returnVehiclesDto.dto";
 
 
 export const ApiPaginatedResponse = <TModel extends Type<any>>(

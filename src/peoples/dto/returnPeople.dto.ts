@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsString } from "class-validator";
-import { Films } from "src/entity/films.entity";
+import { Films } from "src/films/entity/films.entity";
 import { Images } from "src/entity/images.entity";
-import { Planets } from "src/entity/planets.entity";
-import { Species } from "src/entity/species.entity";
-import { Starships } from "src/entity/starships.entity";
-import { Vehicles } from "src/entity/vehicles.entity";
+import { Planets } from "src/planets/entity/planets.entity";
+import { Species } from "src/species/entity/species.entity";
+import { Starships } from "src/starships/entity/starships.entity";
+import { Vehicles } from "src/vehicles/entity/vehicles.entity";
 
 export class ReturnPeopleDto {
     @Type(() => String)

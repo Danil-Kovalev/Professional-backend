@@ -1,18 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CreateFilmsDto } from "src/dto/filmsDto/createFilmsDto.dto";
-import { ReturnFilmsDto } from "src/dto/filmsDto/returnFilmsDto.dto";
-import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
-import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
-import { PageDto } from "src/dto/pageDto/page.dto";
-import { Films } from "src/entity/films.entity";
-import { People } from "src/entity/people.entity";
-import { Planets } from "src/entity/planets.entity";
-import { Species } from "src/entity/species.entity";
-import { Starships } from "src/entity/starships.entity";
-import { Vehicles } from "src/entity/vehicles.entity";
-import { formingUrl } from "src/utils/formingUrl";
 import { Repository } from "typeorm";
+
+import { PageOptionsDto } from "../dto/pageDto/page-options.dto";
+import { PageDto } from "../dto/pageDto/page.dto";
+import { ReturnFilmsDto } from "./dto/returnFilmsDto.dto";
+import { PageMetaDto } from "../dto/pageDto/page-meta.dto";
+import { CreateFilmsDto } from "./dto/createFilmsDto.dto";
+
+import { Films } from "./entity/films.entity";
+import { People } from "../peoples/entity/people.entity";
+import { Starships } from "../starships/entity/starships.entity";
+import { Vehicles } from "../vehicles/entity/vehicles.entity";
+import { Species } from "../species/entity/species.entity";
+import { Planets } from "../planets/entity/planets.entity";
+
+import { formingUrl } from "../utils/formingUrl";
+
+
 
 
 @Injectable()
@@ -91,6 +96,16 @@ export class FilmsService {
     }
 
     /**
+     * Create film with new id and return data created entity
+     * @param newFilm data for new entity
+     * @returns created data
+     */
+    async createFilm(newFilm: CreateFilmsDto) {
+        let index = await this.createIndexFilms();
+        return this.updateFilms(index, newFilm)
+    }
+
+    /**
      * Create index for new entity by last id from database
      * @returns new id for entity
      */
@@ -115,7 +130,7 @@ export class FilmsService {
         films.planets = createFilms.planetsIds.map(id => ({...new Planets(), id}))
         films.url = formingUrl('films', idFilms)
 
-        this.filmsRepository.save(films)
+        return this.filmsRepository.save(films)
     }
 
     /**
@@ -132,5 +147,7 @@ export class FilmsService {
         if(film === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
         
         this.filmsRepository.delete(idFilm)
+
+        return { "success": true }
     }
 }

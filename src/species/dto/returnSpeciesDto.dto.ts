@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsArray, IsNumber, IsString } from "class-validator"
-import { Films } from "src/entity/films.entity"
-import { People } from "src/entity/people.entity"
-import { Planets } from "src/entity/planets.entity"
+import { Films } from "src/films/entity/films.entity"
+import { People } from "src/peoples/entity/people.entity"
+import { Planets } from "src/planets/entity/planets.entity"
 
 export class ReturnSpeciesDto {
 

@@ -1,15 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
-import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
-import { PageDto } from "src/dto/pageDto/page.dto";
-import { CreateVehiclesDto } from "src/dto/vehiclesDto/createVehiclesDto.dto";
-import { ReturnVehiclesDto } from "src/dto/vehiclesDto/returnVehiclesDto.dto";
-import { Films } from "src/entity/films.entity";
-import { People } from "src/entity/people.entity";
-import { Vehicles } from "src/entity/vehicles.entity";
-import { formingUrl } from "src/utils/formingUrl";
 import { Repository } from "typeorm";
+
+import { PageMetaDto } from "../dto/pageDto/page-meta.dto";
+import { PageOptionsDto } from "../dto/pageDto/page-options.dto";
+import { PageDto } from "../dto/pageDto/page.dto";
+import { CreateVehiclesDto } from "./dto/createVehiclesDto.dto";
+import { ReturnVehiclesDto } from "./dto/returnVehiclesDto.dto";
+
+import { Films } from "../films/entity/films.entity";
+import { People } from "../peoples/entity/people.entity";
+import { Vehicles } from "./entity/vehicles.entity";
+
+import { formingUrl } from "../utils/formingUrl";
+
+
 
 
 @Injectable()
@@ -75,6 +80,16 @@ export class VehiclesService {
     }
 
     /**
+    * Create vehicle with new id and return data created entity
+    * @param newVehicle data for new entity
+    * @returns created data
+    */
+    async createVehicle(newVehicle: CreateVehiclesDto) {
+        let index = await this.createIndexVehicles();
+        return this.updateVehicles(index, newVehicle)
+    }
+
+    /**
      * Create index for new entity by last id from database
      * @returns new id for entity
      */
@@ -92,11 +107,11 @@ export class VehiclesService {
         const vehicles = this.vehiclesRepository.create(createVehicles)
 
         vehicles.id = idVehicles;
-        vehicles.pilots = createVehicles.pilotsIds.map(id => ({...new People(), id}))
-        vehicles.films = createVehicles.filmsIds.map(id => ({...new Films(), id}))
+        vehicles.pilots = createVehicles.pilotsIds.map(id => ({ ...new People(), id }))
+        vehicles.films = createVehicles.filmsIds.map(id => ({ ...new Films(), id }))
         vehicles.url = formingUrl('vehicles', idVehicles)
 
-        this.vehiclesRepository.save(vehicles);
+        return this.vehiclesRepository.save(vehicles);
     }
 
     /**
@@ -113,5 +128,7 @@ export class VehiclesService {
         if (vehicle === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         this.vehiclesRepository.delete(idVehicle)
+
+        return { "succes": true }
     }
 }

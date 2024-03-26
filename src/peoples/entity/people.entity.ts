@@ -1,10 +1,10 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { Planets } from "./planets.entity";
-import { Films } from "./films.entity";
-import { Vehicles } from "./vehicles.entity";
-import { Species } from "./species.entity";
-import { Starships } from "./starships.entity";
-import { Images } from "./images.entity";
+import { Planets } from "../../planets/entity/planets.entity";
+import { Films } from "../../films/entity/films.entity";
+import { Vehicles } from "../../vehicles/entity/vehicles.entity";
+import { Species } from "../../species/entity/species.entity";
+import { Starships } from "../../starships/entity/starships.entity";
+import { Images } from "../../entity/images.entity";
 
 @Entity()
 export class People {

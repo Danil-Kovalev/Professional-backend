@@ -1,15 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
-import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
-import { PageDto } from "src/dto/pageDto/page.dto";
-import { CreateStarshipsDto } from "src/dto/starshipsDto/createStarshipsDto.dto";
-import { ReturnStarshipsDto } from "src/dto/starshipsDto/returnStarshipsDto.dto";
-import { Films } from "src/entity/films.entity";
-import { People } from "src/entity/people.entity";
-import { Starships } from "src/entity/starships.entity";
-import { formingUrl } from "src/utils/formingUrl";
 import { Repository } from "typeorm";
+
+import { Starships } from "./entity/starships.entity";
+import { Films } from "../films/entity/films.entity";
+import { People } from "../peoples/entity/people.entity";
+
+import { PageMetaDto } from "../dto/pageDto/page-meta.dto";
+import { PageOptionsDto } from "../dto/pageDto/page-options.dto";
+import { PageDto } from "../dto/pageDto/page.dto";
+import { CreateStarshipsDto } from "./dto/createStarshipsDto.dto";
+import { ReturnStarshipsDto } from "./dto/returnStarshipsDto.dto";
+
+import { formingUrl } from "../utils/formingUrl";
+
 
 
 @Injectable()
@@ -75,6 +79,16 @@ export class StarshipsService {
     }
 
     /**
+     * Create starship with new id and return data created entity
+     * @param newStarship data for new entity
+     * @returns created data
+     */
+    async createStarship(newStarship: CreateStarshipsDto) {
+        let index = await this.createIndexStarships();
+        return this.updateStarships(index, newStarship)
+    }
+
+    /**
      * Create index for new entity by last id from database
      * @returns new id for entity
      */
@@ -96,7 +110,7 @@ export class StarshipsService {
         starships.films = createStarships.filmsIds.map(id => ({...new Films(), id}))
         starships.url = formingUrl('starships', idStarships)
 
-        this.starshipsRepository.save(starships);
+        return this.starshipsRepository.save(starships);
     }
 
     /**
@@ -105,5 +119,7 @@ export class StarshipsService {
      */
     deleteStarships(idStarship: number) {
         this.starshipsRepository.delete(idStarship)
+
+        return { "success": true }
     }
 }

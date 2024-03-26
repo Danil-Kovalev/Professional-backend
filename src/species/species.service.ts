@@ -1,17 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { spec } from "node:test/reporters";
-import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
-import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
-import { PageDto } from "src/dto/pageDto/page.dto";
-import { CreateSpeciesDto } from "src/dto/speciesDto/createSpeciesDto.dto";
-import { ReturnSpeciesDto } from "src/dto/speciesDto/returnSpeciesDto.dto";
-import { Films } from "src/entity/films.entity";
-import { Planets } from "src/entity/planets.entity";
-import { Species } from "src/entity/species.entity";
 import { Repository } from "typeorm";
-import { formingUrl } from "src/utils/formingUrl";
-import { People } from "src/entity/people.entity";
+
+import { PageMetaDto } from "../dto/pageDto/page-meta.dto";
+import { PageOptionsDto } from "../dto/pageDto/page-options.dto";
+import { PageDto } from "../dto/pageDto/page.dto";
+import { CreateSpeciesDto } from "./dto/createSpeciesDto.dto";
+import { ReturnSpeciesDto } from "./dto/returnSpeciesDto.dto";
+
+import { Films } from "../films/entity/films.entity";
+import { People } from "../peoples/entity/people.entity";
+import { Planets } from "../planets/entity/planets.entity";
+import { Species } from "./entity/species.entity";
+
+import { formingUrl } from "../utils/formingUrl";
+;
 
 
 @Injectable()
@@ -88,6 +91,16 @@ export class SpeciesService {
     }
 
     /**
+     * Create specie with new id and return data created entity
+     * @param newSpecie data for new entity
+     * @returns created data
+     */
+    async createSpecie(newSpecie: CreateSpeciesDto) {
+        let index = await this.createIndexSpecies();
+        return this.updateSpecies(index, newSpecie)
+    }
+
+    /**
      * Create index for new entity by last id from database
      * @returns new id for entity
      */
@@ -116,7 +129,7 @@ export class SpeciesService {
         species.films = createSpecies.filmsIds.map(id => ({ ...new Films(), id }))
         species.url = formingUrl('species', idSpecies)
     
-        this.speciesRepository.save(species)
+        return this.speciesRepository.save(species)
     }
 
     /**
@@ -133,5 +146,7 @@ export class SpeciesService {
         if(specie === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         this.speciesRepository.delete(idSpecie)
+        
+        return { "success": true }
     }
 }

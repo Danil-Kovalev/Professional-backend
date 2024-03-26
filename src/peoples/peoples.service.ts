@@ -5,14 +5,14 @@ import { Repository } from 'typeorm';
 import { PageMetaDto } from '../dto/pageDto/page-meta.dto';
 import { PageOptionsDto } from 'src/dto/pageDto/page-options.dto';
 import { PageDto } from '../dto/pageDto/page.dto';
-import { People } from '../entity/people.entity';
-import { ReturnPeopleDto } from '../dto/peoplesDto/returnPeople.dto';
-import { CreatePeopleDto } from '../dto/peoplesDto/createPeople.dto';
-import { Planets } from '../entity/planets.entity';
-import { Films } from '../entity/films.entity';
-import { Species } from '../entity/species.entity';
-import { Vehicles } from '../entity/vehicles.entity';
-import { Starships } from '../entity/starships.entity';
+import { People } from './entity/people.entity';
+import { ReturnPeopleDto } from './dto/returnPeople.dto';
+import { CreatePeopleDto } from './dto/createPeople.dto';
+import { Planets } from '../planets/entity/planets.entity';
+import { Films } from '../films/entity/films.entity';
+import { Species } from '../species/entity/species.entity';
+import { Vehicles } from '../vehicles/entity/vehicles.entity';
+import { Starships } from '../starships/entity/starships.entity';
 import { Images } from '../entity/images.entity';
 import { formingUrl } from '../utils/formingUrl';
 
@@ -98,6 +98,11 @@ export class PeoplesService {
 
     }
 
+    /**
+     * Create people with new id and return data created entity
+     * @param newPeople data for new entity
+     * @returns created data
+     */
     async createPeople(newPeople: CreatePeopleDto) {
         let index = await this.createIndexPeople();
         return this.updatePeople(index, newPeople)

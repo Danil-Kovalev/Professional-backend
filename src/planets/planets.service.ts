@@ -1,15 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CreatePlanetsDto } from "src/dto/planetsDto/createPlanets.dto";
-import { PageMetaDto } from "src/dto/pageDto/page-meta.dto";
-import { PageOptionsDto } from "src/dto/pageDto/page-options.dto";
-import { PageDto } from "src/dto/pageDto/page.dto";
-import { Films } from "src/entity/films.entity";
-import { Planets } from "src/entity/planets.entity";
 import { Repository } from "typeorm";
-import { formingUrl } from "src/utils/formingUrl";
-import { ReturnPlanetsDto } from "src/dto/planetsDto/returnPlanetsDto.dto";
-import { People } from "src/entity/people.entity";
+
+import { PageMetaDto } from "../dto/pageDto/page-meta.dto";
+import { PageOptionsDto } from "../dto/pageDto/page-options.dto";
+import { PageDto } from "../dto/pageDto/page.dto";
+import { CreatePlanetsDto } from "./dto/createPlanets.dto";
+import { ReturnPlanetsDto } from "./dto/returnPlanetsDto.dto";
+
+import { Films } from "../films/entity/films.entity";
+import { People } from "../peoples/entity/people.entity";
+import { Planets } from "./entity/planets.entity";
+
+import { formingUrl } from "../utils/formingUrl";
+
 
 
 @Injectable()
@@ -74,6 +78,16 @@ export class PlanetsService {
         return planet;
     }
 
+     /**
+     * Create planet with new id and return data created entity
+     * @param newPlanet data for new entity
+     * @returns created data
+     */
+     async createPlanet(newPlanet: CreatePlanetsDto) {
+        let index = await this.createIndexPlanet();
+        return this.updatePlanets(index, newPlanet)
+    }
+
     /**
      * Create index for new entity by last id from database
      * @returns new id for entity
@@ -96,7 +110,7 @@ export class PlanetsService {
         planets.films = createPlanets.filmsIds.map(id => ({...new Films(), id}))
         planets.url = formingUrl('planets', idPlanets)
         
-        this.planetsRepository.save(planets)
+        return this.planetsRepository.save(planets)
     }
 
     /**
@@ -113,5 +127,7 @@ export class PlanetsService {
         if (planet === null) throw new HttpException('Entity not exist!', HttpStatus.NOT_FOUND)
 
         this.planetsRepository.delete(idPlanet)
+
+        return { "success": true }
     }
 }

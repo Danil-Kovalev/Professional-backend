@@ -1,11 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsNumber, IsString } from "class-validator"
-import { People } from "src/entity/people.entity"
-import { Planets } from "src/entity/planets.entity"
-import { Species } from "src/entity/species.entity"
-import { Starships } from "src/entity/starships.entity"
-import { Vehicles } from "src/entity/vehicles.entity"
+import { People } from "src/peoples/entity/people.entity"
+import { Planets } from "src/planets/entity/planets.entity"
+import { Species } from "src/species/entity/species.entity"
+import { Starships } from "src/starships/entity/starships.entity"
+import { Vehicles } from "src/vehicles/entity/vehicles.entity"
 
 export class ReturnFilmsDto {
     @Type(() => String)

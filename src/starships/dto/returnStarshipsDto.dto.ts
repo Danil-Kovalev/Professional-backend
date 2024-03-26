@@ -1,10 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsNumber, IsString } from "class-validator"
-import { Films } from "src/entity/films.entity"
-import { People } from "src/entity/people.entity"
+import { Films } from "src/films/entity/films.entity"
+import { People } from "src/peoples/entity/people.entity"
 
-export class ReturnVehiclesDto {
+export class ReturnStarshipsDto {
     @Type(() => String)
     @IsString()
     @ApiProperty()
@@ -25,7 +25,7 @@ export class ReturnVehiclesDto {
     @ApiProperty()
 	cost_in_credits: number
 
-    @Type(() => Number)
+	@Type(() => Number)
     @IsNumber()
     @ApiProperty()
 	length: number
@@ -55,7 +55,22 @@ export class ReturnVehiclesDto {
     @ApiProperty()
     consumables: string
 
-    @Type(() => Array<string>)
+    @Type(() => Number)
+    @IsNumber()
+    @ApiProperty()
+    hyperdrive_rating: number
+
+    @Type(() => Number)
+    @IsNumber()
+    @ApiProperty()
+    MGLT: number
+
+    @Type(() => String)
+    @IsString()
+    @ApiProperty()
+    starship_class: string
+
+	@Type(() => Array<string>)
     @IsString({
         each: true
     })

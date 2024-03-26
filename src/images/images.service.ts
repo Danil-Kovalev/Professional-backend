@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { unlink } from 'fs';
 import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
 import { Images } from 'src/entity/images.entity';
-import { People } from 'src/entity/people.entity';
+import { People } from 'src/peoples/entity/people.entity';
 import { Repository } from 'typeorm';
 import * as AWS from 'aws-sdk'
 import { formingUrl } from 'src/utils/formingUrl';

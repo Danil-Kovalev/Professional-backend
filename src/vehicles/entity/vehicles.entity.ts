@@ -1,10 +1,10 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Films } from "./films.entity";
-import { People } from "./people.entity";
-import { Images } from "./images.entity";
+import { Films } from "../../films/entity/films.entity";
+import { People } from "../../peoples/entity/people.entity";
+import { Images } from "../../entity/images.entity";
 
 @Entity()
-export class Starships {
+export class Vehicles {
 
 	@PrimaryGeneratedColumn()
 	id: number
@@ -39,21 +39,12 @@ export class Starships {
     @Column()
     consumables: string
 
-    @Column()
-    hyperdrive_rating: number
-
-    @Column()
-    MGLT: number
-
-    @Column()
-    starship_class: string
-
-	@ManyToMany(() => People, (people) => people.starships, {
+    @ManyToMany(() => People, (people) => people.vehicles, {
 		onDelete: 'CASCADE'
 	})
 	pilots: People[]
 
-	@ManyToMany(() => Films, (films) => films.starships, {
+	@ManyToMany(() => Films, (films) => films.vehicles, {
 		onDelete: 'CASCADE'
 	})
 	films: Films[]

@@ -1,12 +1,15 @@
-import { Controller, Request, Post, UseGuards, Get, Body, Res, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthService } from 'src/auth/auth.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import { LocalAuthGuard } from 'src/auth/guards/local-auth.guards';
-import { CreateUserDto } from 'src/dto/usersDto/createUserDto.dto';
-import { UsersService } from './users.service';
+import { Controller, Post, UseGuards, Body, Res, Query } from '@nestjs/common';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { Role } from 'src/auth/roles/role.enum';
+
+import { AuthService } from '../auth/auth.service';
+import { UsersService } from './users.service';
+
+import { LocalAuthGuard } from '../auth/guards/local-auth.guards';
+
+import { CreateUserDto } from './dto/createUserDto.dto';
+import { Role } from '../auth/roles/role.enum';
+
 
 @ApiTags('Users')
 @Controller('users')
@@ -19,7 +22,7 @@ export class UserController {
   @Post('auth/register')
   async register(@Body() user: CreateUserDto, @Query('role') role: Role) {
     let idUser = await this.userService.createIndexUsers();
-    this.userService.registerUser(idUser, user, role);
+    return this.userService.registerUser(idUser, user, role);
   }
     
   @UseGuards(LocalAuthGuard)

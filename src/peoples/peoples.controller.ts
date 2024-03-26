@@ -5,13 +5,13 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { RolesGuard } from '../auth/guards/roles.guards';
 import { ExcludeNullInterceptor } from '../interceptors/excludeNullException.interceptor';
 import { ApiPaginatedResponse } from '../decorators/api-paginated-response.decorator';
-import { ReturnPeopleDto } from '../dto/peoplesDto/returnPeople.dto';
+import { ReturnPeopleDto } from './dto/returnPeople.dto';
 import { Roles } from '../auth/roles/roles.decorator';
 import { Role } from '../auth/roles/role.enum';
 import { PageOptionsDto } from '../dto/pageDto/page-options.dto';
 import { PageDto } from '../dto/pageDto/page.dto';
 import { ResponseInterceptor } from '../interceptors/baseResponse.interceptor';
-import { CreatePeopleDto } from '../dto/peoplesDto/createPeople.dto';
+import { CreatePeopleDto } from './dto/createPeople.dto';
 
 
 @ApiTags('Peoples')
