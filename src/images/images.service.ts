@@ -1,13 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { unlink } from 'fs';
-import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
-import { Images } from 'src/entity/images.entity';
-import { People } from 'src/peoples/entity/people.entity';
 import { Repository } from 'typeorm';
-import * as AWS from 'aws-sdk'
-import { formingUrl } from 'src/utils/formingUrl';
+
+import * as AWS from 'aws-sdk';
 import { extname } from 'path';
+
+import { CreateImagesDto } from './dto/createImages.dto';
+
+import { Images } from './entity/images.entity';
+import { People } from '../peoples/entity/people.entity';
+
+import { formingUrl } from '../utils/formingUrl';
 
 @Injectable()
 export class ImagesService {
@@ -93,6 +96,8 @@ export class ImagesService {
         images.people = peoples;
 
         this.imagesRepository.save(images);
+
+        return { "succes": true }
     }
 
     /**
@@ -125,6 +130,8 @@ export class ImagesService {
             Key: image.name
         }).promise();
         this.imagesRepository.remove(image);
+
+        return { "success": true }
     }
 
 }

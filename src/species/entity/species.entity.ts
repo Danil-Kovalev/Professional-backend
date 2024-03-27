@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne,
 import { Planets } from "../../planets/entity/planets.entity";
 import { Films } from "../../films/entity/films.entity";
 import { People } from "../../peoples/entity/people.entity";
-import { Images } from "../../entity/images.entity";
+import { Images } from "../../images/entity/images.entity";
 
 @Entity()
 export class Species {

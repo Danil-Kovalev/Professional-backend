@@ -4,7 +4,7 @@ import { Films } from "../../films/entity/films.entity";
 import { Vehicles } from "../../vehicles/entity/vehicles.entity";
 import { Species } from "../../species/entity/species.entity";
 import { Starships } from "../../starships/entity/starships.entity";
-import { Images } from "../../entity/images.entity";
+import { Images } from "../../images/entity/images.entity";
 
 @Entity()
 export class People {

@@ -2,9 +2,10 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Res, Uploaded
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ImagesService } from './images.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateImagesDto } from 'src/dto/imagesDto/createImages.dto';
-import { imageFilter } from 'src/utils/image-storage';
 import { Response } from 'express';
+
+import { imageFilter } from '../utils/image-storage';
+import { CreateImagesDto } from './dto/createImages.dto';
 
 @ApiTags('Images')
 @Controller('images')
@@ -38,7 +39,7 @@ export class ImagesController {
     }))
     async createImage(@Body() data: CreateImagesDto, @UploadedFile() file: Express.Multer.File) {
         let newIndexImage: number = await this.imagesService.createIndexImages();
-        this.imagesService.createImage(file, data, newIndexImage);
+        return this.imagesService.createImage(file, data, newIndexImage);
     }
 
     /**
@@ -47,6 +48,6 @@ export class ImagesController {
      */
     @Delete(':id')
     async deleteImage(@Param('id', ParseIntPipe) idImage: number) {
-        this.imagesService.deleteImage(idImage);
+        return this.imagesService.deleteImage(idImage);
     }
 }

@@ -28,9 +28,7 @@ export class UserController {
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Body() user: CreateUserDto, @Res() res: Response) {
-    const { token } = await this.authService.signIn(user);
-    res.cookie('IsAuthenticated', true, {maxAge: 2*60*60*1000})
-    res.cookie('Authentication', token, {httpOnly: true, maxAge: 2*60*60*1000})
-    return res.send({success: true})
+    return this.authService.signIn(user, res);
+    // return res.send({success: true})
   }
 }

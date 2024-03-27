@@ -13,7 +13,7 @@ import { Films } from '../films/entity/films.entity';
 import { Species } from '../species/entity/species.entity';
 import { Vehicles } from '../vehicles/entity/vehicles.entity';
 import { Starships } from '../starships/entity/starships.entity';
-import { Images } from '../entity/images.entity';
+import { Images } from '../images/entity/images.entity';
 import { formingUrl } from '../utils/formingUrl';
 
 

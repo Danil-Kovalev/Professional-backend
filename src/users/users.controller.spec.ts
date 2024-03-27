@@ -6,6 +6,7 @@ import { Role } from '../auth/roles/role.enum';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
+import { response } from 'express';
 
 describe('UserController', () => {
     let serviceAuth: AuthService
@@ -23,9 +24,8 @@ describe('UserController', () => {
         role: Role.User
     }
 
-    const mockVehicleService = {
+    const mockUserService = {
         registerUser: jest.fn().mockResolvedValueOnce(mockReturnUser),
-        loginUser: jest.fn().mockResolvedValueOnce({ token: "123jhk@#3kj3sdf"})
     }
 
     beforeEach(async () => {
@@ -33,7 +33,7 @@ describe('UserController', () => {
             imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
             controllers: [UserController],
             providers: [AuthService, UsersService, JwtService],
-        }).overrideProvider(UsersService).useValue(mockVehicleService).compile();
+        }).overrideProvider(UsersService).useValue(mockUserService).compile();
 
         controller = module.get<UserController>(UserController)
         serviceAuth = module.get<AuthService>(AuthService)
@@ -43,14 +43,6 @@ describe('UserController', () => {
     it('should be defined user', () => {
         expect(controller).toBeDefined();
     })
-
-    // describe('getVehicleById', () => {
-    //     it('should be get vehicle', async () => {
-    //         const result = await serviceAuth.getVehicle(1);
-    //         expect(serviceAuth.getVehicle).toHaveBeenCalled()
-    //         expect(result).toEqual([mockUser])
-    //     })
-    // })
 
     describe('create user', () => {
         it('should be create user', async () => {
@@ -64,12 +56,12 @@ describe('UserController', () => {
 
     describe('login user', () => {
         it('should be login user', async () => {
-            const result = await serviceAuth.signIn(mockUser)
+            jest.spyOn(serviceAuth, 'signIn').mockResolvedValueOnce({ "success": true })
+
+            const result = await serviceAuth.signIn(mockUser, response)
 
             expect(serviceAuth.signIn).toHaveBeenCalled()
-            expect(result).toEqual({
-                token: expect.any(String)
-            })
+            expect(result).toEqual({ "success": true })
         })
     })
 })

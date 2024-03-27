@@ -81,7 +81,7 @@ describe('FilmsController', () => {
 
     describe('updateFilm', () => {
         it('should be updated film', async () => {
-            const updateFilm = { ...mockFilm, mass: 90 }
+            const updateFilm = { ...mockFilm, episode_id: 5 }
             const result = await service.updateFilms(1, updateFilm);
 
             expect(service.updateFilms).toHaveBeenCalled()
