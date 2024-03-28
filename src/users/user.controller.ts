@@ -20,15 +20,16 @@ export class UserController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiQuery({name: 'role', enum: Role})
   @Post('auth/register')
-  async register(@Body() user: CreateUserDto, @Query('role') role: Role) {
-    let idUser = await this.userService.createIndexUsers();
-    return this.userService.registerUser(idUser, user, role);
+  async registerUser(@Body() user: CreateUserDto, @Query('role') role: Role) {
+    return this.userService.registerUser(user, role);
   }
     
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
-  async login(@Body() user: CreateUserDto, @Res() res: Response) {
-    return this.authService.signIn(user, res);
-    // return res.send({success: true})
+  async signIn(@Body() user: CreateUserDto) {
+    return this.userService.signIn(user);
+    // res.cookie('IsAuthenticated', true, {maxAge: 2*60*60*1000})
+    // res.cookie('Authentication', token, {httpOnly: true, maxAge: 2*60*60*1000})
+    // return { "success": true }
   }
 }

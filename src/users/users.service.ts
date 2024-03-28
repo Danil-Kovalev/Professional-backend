@@ -7,6 +7,7 @@ import { ReturnUserDto } from './dto/returnUserDto.dto';
 
 import { Users } from './entity/user.entity';
 import { Role } from '../auth/roles/role.enum';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
@@ -14,7 +15,8 @@ export class UsersService {
 
   constructor(
     @InjectRepository(Users)
-    private usersRepository: Repository<Users>
+    private usersRepository: Repository<Users>,
+    private jwtService: JwtService
   ) { }
 
   /**
@@ -22,7 +24,7 @@ export class UsersService {
    * @param usernameUser
    * @returns user with it username
    */
-  async findOne(usernameUser: string): Promise<ReturnUserDto> {
+  async findOne(usernameUser: string) {
     let users = this.usersRepository.findOne({
       where: {
         username: usernameUser
@@ -55,15 +57,31 @@ export class UsersService {
   }
 
   /**
+   * Check data user in database, set token to cookie and return success result
+   * @param user data for check user in database
+   * @returns success result
+   */
+  async signIn(user: CreateUserDto) {
+    const userLogin = await this.findOne(user.username);
+    const payload = { sub: userLogin.id, username: userLogin.username, role: userLogin.role};
+    const token = await this.jwtService.signAsync(payload, { secret: `${process.env.JWT_SECRET}` })
+    return { "success": true };
+  }
+
+
+  /**
    * Register user and write data to database
    * @param idUser new id user
    * @param newUser data user
    * @param role user
    */
-  async registerUser(idUser: number, newUser: CreateUserDto, role: Role) {
+  async registerUser(newUser: CreateUserDto, role: Role) {
+    let idUser = await this.createIndexUsers();
     let users = this.usersRepository.create(newUser);
+
     users.id = idUser;
     users.role = role;
+    
     this.usersRepository.save(users);
     return { id: users.id, username: users.username, role: users.role }
   }

@@ -9,8 +9,6 @@ import { JwtService } from '@nestjs/jwt';
 import { response } from 'express';
 
 describe('UserController', () => {
-    let serviceAuth: AuthService
-    let serviceUser: UsersService
     let controller: UserController;
 
     const mockUser = {
@@ -26,6 +24,7 @@ describe('UserController', () => {
 
     const mockUserService = {
         registerUser: jest.fn().mockResolvedValueOnce(mockReturnUser),
+        signIn: jest.fn().mockResolvedValueOnce({ "success": true })
     }
 
     beforeEach(async () => {
@@ -36,8 +35,6 @@ describe('UserController', () => {
         }).overrideProvider(UsersService).useValue(mockUserService).compile();
 
         controller = module.get<UserController>(UserController)
-        serviceAuth = module.get<AuthService>(AuthService)
-        serviceUser = module.get<UsersService>(UsersService)
     })
 
     it('should be defined user', () => {
@@ -47,21 +44,18 @@ describe('UserController', () => {
     describe('create user', () => {
         it('should be create user', async () => {
             const newUser: CreateUserDto = { ...mockUser }
-            const result = await serviceUser.registerUser(1, newUser, Role.User);
 
-            expect(serviceUser.registerUser).toHaveBeenCalled()
-            expect(result).toEqual(mockReturnUser)
+            expect(await controller.registerUser(newUser, Role.User)).toEqual(mockReturnUser)
+            expect(mockUserService.registerUser).toHaveBeenCalledWith(newUser, Role.User)
         })
     })
 
     describe('login user', () => {
         it('should be login user', async () => {
-            jest.spyOn(serviceAuth, 'signIn').mockResolvedValueOnce({ "success": true })
+            const dto = { ...mockUser }
 
-            const result = await serviceAuth.signIn(mockUser, response)
-
-            expect(serviceAuth.signIn).toHaveBeenCalled()
-            expect(result).toEqual({ "success": true })
+            expect(await controller.signIn(dto)).toEqual({ "success": true })
+            expect(mockUserService.signIn).toHaveBeenCalledWith(dto)
         })
     })
 })

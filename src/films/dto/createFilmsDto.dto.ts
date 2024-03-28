@@ -65,7 +65,6 @@ export class CreateFilmsDto {
     @IsNumber({}, {
         each: true
     })
-    @IsString()
     @ApiProperty()
     planetsIds: number[]
 }

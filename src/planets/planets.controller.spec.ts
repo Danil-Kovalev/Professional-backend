@@ -5,7 +5,6 @@ import { CreatePlanetsDto } from './dto/createPlanets.dto'
 import { PassportModule } from '@nestjs/passport';
 
 describe('PlanetsController', () => {
-    let service: PlanetsService
     let controller: PlanetsController;
 
     const mockPlanet = {
@@ -22,14 +21,43 @@ describe('PlanetsController', () => {
         filmsIds: []
     }
 
+    const mockReturnPlanet = {
+        id: 1,
+        name: "Yavin IV",
+        rotation_period: 24,
+        orbital_period: 4818,
+        diameter: 10200,
+        climate: "temperate, tropical",
+        gravity: "1 standard",
+        terrain: "jungle, rainforests",
+        surface_water: 8,
+        population: 1000,
+        residentsIds: [],
+        filmsIds: []
+    }
+
+    const mockReturnUpdatePlanet = {
+        name: "Yavin IV",
+        rotation_period: 24,
+        orbital_period: 4818,
+        diameter: 10200,
+        climate: "temperate, tropical",
+        gravity: "1 standard",
+        terrain: "jungle, rainforests",
+        surface_water: 10,
+        population: 1000,
+        residentsIds: [],
+        filmsIds: []
+    }
+
     const mockPlanetsService = {
-        getPlanets: jest.fn().mockResolvedValueOnce([mockPlanet]),
-        getPlanet: jest.fn().mockResolvedValueOnce([mockPlanet]),
+        getPlanets: jest.fn().mockResolvedValueOnce(mockReturnPlanet),
+        getPlanet: jest.fn().mockResolvedValueOnce(mockReturnPlanet),
         createPlanet: jest.fn(dto => {
             return { id: 1, ...dto }
         }),
-        updatePlanets: jest.fn(dto => {
-            return { ...mockPlanet, surface_water: 10 }
+        updatePlanets: jest.fn((id, dto) => {
+            return { id, ...dto }
         }),
         deletePlanets: jest.fn().mockResolvedValueOnce({ "success": true })
     }
@@ -42,7 +70,6 @@ describe('PlanetsController', () => {
         }).overrideProvider(PlanetsService).useValue(mockPlanetsService).compile();
 
         controller = module.get<PlanetsController>(PlanetsController)
-        service = module.get<PlanetsService>(PlanetsService)
     })
 
     it('should be defined planet', () => {
@@ -51,49 +78,52 @@ describe('PlanetsController', () => {
 
     describe('getAllPlanets', () => {
         it('should be get all planets', async () => {
-            const result = await service.getPlanets({ page: 1, skip: 0 });
-            expect(service.getPlanets).toHaveBeenCalled()
-            expect(result).toEqual([mockPlanet])
+            const dto = { page: 1, skip: 0 };
+
+            expect(await controller.getPlanets(dto)).toEqual(mockReturnPlanet)
+            expect(mockPlanetsService.getPlanets).toHaveBeenCalledWith(dto)
         })
     })
 
     describe('getPlanetById', () => {
         it('should be get Planet', async () => {
-            const result = await service.getPlanet(1);
-            expect(service.getPlanet).toHaveBeenCalled()
-            expect(result).toEqual([mockPlanet])
+            const dto = 1;
+            
+            expect(await controller.getPlanet(dto)).toEqual(mockReturnPlanet)
+            expect(mockPlanetsService.getPlanet).toHaveBeenCalledWith(dto)
         })
     })
 
     describe('createPlanet', () => {
         it('should be create Planet', async () => {
             const newPlanet: CreatePlanetsDto = { ...mockPlanet }
-            const result = await service.createPlanet(newPlanet);
 
-            expect(service.createPlanet).toHaveBeenCalled()
-            expect(result).toEqual({
+            expect(await controller.createPlanets(newPlanet)).toEqual({
                 id: expect.any(Number),
                 ...mockPlanet
             })
+            expect(mockPlanetsService.createPlanet).toHaveBeenCalledWith(newPlanet)
         })
     })
 
     describe('updatePlanet', () => {
         it('should be updated Planet', async () => {
             const updatePlanet = { ...mockPlanet, surface_water: 10 }
-            const result = await service.updatePlanets(1, updatePlanet);
 
-            expect(service.updatePlanets).toHaveBeenCalled()
-            expect(result).toEqual(updatePlanet)
+            expect(await controller.updatePlanets(1, updatePlanet)).toEqual({
+                id: 1,
+                ...mockReturnUpdatePlanet
+            })
+            expect(mockPlanetsService.updatePlanets).toHaveBeenCalled()
         })
     })
 
     describe('deletePlanet', () => {
         it('should be deleted Planet and get success result', async () => {
-            const result = await mockPlanetsService.deletePlanets(1)
+            const dto = 1;
 
-            expect(service.deletePlanets).toHaveBeenCalled()
-            expect(result).toEqual({ "success": true })
+            expect(await controller.deletePlanets(dto)).toEqual({ "success": true })
+            expect(mockPlanetsService.deletePlanets).toHaveBeenCalledWith(dto)
         })
     })
 })

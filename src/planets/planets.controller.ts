@@ -73,7 +73,7 @@ export class PlanetsController {
   @Put(':id')
   @Roles(Role.Admin)
   updatePlanets(@Param('id', ParseIntPipe) id: number, @Body() editPlanets: CreatePlanetsDto) {
-   this.planetsService.updatePlanets(id, editPlanets)
+   return this.planetsService.updatePlanets(id, editPlanets)
   }
 
   /**
@@ -83,6 +83,6 @@ export class PlanetsController {
   @Delete(':id')
   @Roles(Role.Admin)
   deletePlanets(@Param('id', ParseIntPipe) id: number) {
-    this.planetsService.deletePlanets(id)
+    return this.planetsService.deletePlanets(id)
   }
 }

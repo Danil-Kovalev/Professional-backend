@@ -5,7 +5,6 @@ import { CreateFilmsDto } from './dto/createFilmsDto.dto';
 import { PassportModule } from '@nestjs/passport';
 
 describe('FilmsController', () => {
-    let service: FilmsService
     let controller: FilmsController;
 
     const mockFilm = {
@@ -22,14 +21,43 @@ describe('FilmsController', () => {
         planetsIds: [],
     }
 
+    const mockReturnFilm = {
+        id: 1,
+        title: "A New Hope",
+        episode_id: 4,
+        opening_crawl: "It is a period of civil war.",
+        director: "George Lucas",
+        producer: "Gary Kurtz, Rick McCallum",
+        release_date: new Date(),
+        charactersIds: [],
+        starshipsIds: [],
+        vehiclesIds: [],
+        speciesIds: [],
+        planetsIds: []
+    }
+
+    const mockReturnUpdateFilm = {
+        title: "A New Hope",
+        episode_id: 5,
+        opening_crawl: "It is a period of civil war.",
+        director: "George Lucas",
+        producer: "Gary Kurtz, Rick McCallum",
+        release_date: new Date(),
+        charactersIds: [],
+        starshipsIds: [],
+        vehiclesIds: [],
+        speciesIds: [],
+        planetsIds: []
+    }
+
     const mockFilmsService = {
-        getFilms: jest.fn().mockResolvedValueOnce([mockFilm]),
-        getFilm: jest.fn().mockResolvedValueOnce([mockFilm]),
+        getFilms: jest.fn().mockResolvedValueOnce(mockReturnFilm),
+        getFilm: jest.fn().mockResolvedValueOnce(mockReturnFilm),
         createFilm: jest.fn(dto => {
             return { id: 1, ...dto }
         }),
-        updateFilms: jest.fn(dto => {
-            return { ...mockFilm, episode_id: 5 }
+        updateFilms: jest.fn((id, dto) => {
+            return { id, ...dto }
         }),
         deleteFilms: jest.fn().mockResolvedValueOnce({ "success": true })
     }
@@ -42,7 +70,6 @@ describe('FilmsController', () => {
         }).overrideProvider(FilmsService).useValue(mockFilmsService).compile();
 
         controller = module.get<FilmsController>(FilmsController)
-        service = module.get<FilmsService>(FilmsService)
     })
 
     it('should be defined film', () => {
@@ -51,17 +78,18 @@ describe('FilmsController', () => {
 
     describe('getAllFilms', () => {
         it('should be get all films', async () => {
-            const result = await service.getFilms({ page: 1, skip: 0 });
-            expect(service.getFilms).toHaveBeenCalled()
-            expect(result).toEqual([mockFilm])
+            const dto = { page: 1, skip: 0 };
+
+            expect(await controller.getFilms(dto)).toEqual(mockReturnFilm)
+            expect(mockFilmsService.getFilms).toHaveBeenCalledWith(dto)
         })
     })
 
     describe('getFilmById', () => {
         it('should be get film', async () => {
-            const result = await service.getFilm(1);
-            expect(service.getFilm).toHaveBeenCalled()
-            expect(result).toEqual([mockFilm])
+            const dto = 1;
+            expect(await controller.getFilm(1)).toEqual(mockReturnFilm)
+            expect(mockFilmsService.getFilm).toHaveBeenCalledWith(dto)
         })
     })
 
@@ -69,32 +97,31 @@ describe('FilmsController', () => {
         it('should be create film', async () => {
             const newFilm: CreateFilmsDto = { ...mockFilm }
 
-            const result = await service.createFilm(newFilm);
-
-            expect(service.createFilm).toHaveBeenCalled()
-            expect(result).toEqual({
+            expect(await controller.createFilms(newFilm)).toEqual({
                 id: expect.any(Number),
                 ...mockFilm
             })
+            expect(mockFilmsService.createFilm).toHaveBeenCalledWith(newFilm)
         })
     })
 
     describe('updateFilm', () => {
         it('should be updated film', async () => {
             const updateFilm = { ...mockFilm, episode_id: 5 }
-            const result = await service.updateFilms(1, updateFilm);
 
-            expect(service.updateFilms).toHaveBeenCalled()
-            expect(result).toEqual(updateFilm)
+            expect(await controller.updateFilms(1, updateFilm)).toEqual({
+                id: 1,
+                ...mockReturnUpdateFilm
+            })
+            expect(mockFilmsService.updateFilms).toHaveBeenCalled()
         })
     })
 
     describe('deleteFilm', () => {
         it('should be deleted film and get success result', async () => {
-            const result = await mockFilmsService.deleteFilms(1)
-
-            expect(service.deleteFilms).toHaveBeenCalled()
-            expect(result).toEqual({ "success": true })
+            const dto = 1;
+            expect(await controller.deleteFilms(1)).toEqual({ "success": true })
+            expect(mockFilmsService.deleteFilms).toHaveBeenCalledWith(dto)
         })
     })
 })
