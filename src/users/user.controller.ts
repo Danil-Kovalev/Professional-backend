@@ -26,10 +26,10 @@ export class UserController {
     
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
-  async signIn(@Body() user: CreateUserDto) {
-    return this.userService.signIn(user);
-    // res.cookie('IsAuthenticated', true, {maxAge: 2*60*60*1000})
-    // res.cookie('Authentication', token, {httpOnly: true, maxAge: 2*60*60*1000})
-    // return { "success": true }
+  async signIn(@Body() user: CreateUserDto, @Res() res: Response) {
+    let { token } = await this.authService.signIn(user);
+    res.cookie('IsAuthenticated', true, {maxAge: 2*60*60*1000})
+    res.cookie('Authentication', token, {httpOnly: true, maxAge: 2*60*60*1000})
+    return res.send({ "success": true })
   }
 }

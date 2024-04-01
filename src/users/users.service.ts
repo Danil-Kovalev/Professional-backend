@@ -56,18 +56,6 @@ export class UsersService {
     return itemCount + 1;
   }
 
-  /**
-   * Check data user in database, set token to cookie and return success result
-   * @param user data for check user in database
-   * @returns success result
-   */
-  async signIn(user: CreateUserDto) {
-    const userLogin = await this.findOne(user.username);
-    const payload = { sub: userLogin.id, username: userLogin.username, role: userLogin.role};
-    const token = await this.jwtService.signAsync(payload, { secret: `${process.env.JWT_SECRET}` })
-    return { "success": true };
-  }
-
 
   /**
    * Register user and write data to database

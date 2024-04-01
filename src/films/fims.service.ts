@@ -33,7 +33,7 @@ export class FilmsService {
      * @returns sliced data all films
      */
     async getFilms(pageOptionsDto: PageOptionsDto): Promise<PageDto<ReturnFilmsDto>> {
-        let itemCount: number = await this.filmsRepository.createQueryBuilder().getCount(); //get count all films from database
+        let itemCount: number = await this.filmsRepository.count(); //get count all films from database
 
         // send request to database for gets data by params
         let films: ReturnFilmsDto[] = await this.filmsRepository.find({
@@ -101,17 +101,9 @@ export class FilmsService {
      * @returns created data
      */
     async createFilm(newFilm: CreateFilmsDto) {
-        let index = await this.createIndexFilms();
+        let index = await this.filmsRepository.count();
+        index++;
         return this.updateFilms(index, newFilm)
-    }
-
-    /**
-     * Create index for new entity by last id from database
-     * @returns new id for entity
-     */
-    async createIndexFilms(): Promise<number> {
-        let itemCount: number = await this.filmsRepository.createQueryBuilder().getCount();
-        return itemCount + 1;
     }
 
     /**
