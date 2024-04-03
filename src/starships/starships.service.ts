@@ -84,17 +84,9 @@ export class StarshipsService {
      * @returns created data
      */
     async createStarship(newStarship: CreateStarshipsDto) {
-        let index = await this.createIndexStarships();
+        let index = await this.starshipsRepository.count();
+        index++;
         return this.updateStarships(index, newStarship)
-    }
-
-    /**
-     * Create index for new entity by last id from database
-     * @returns new id for entity
-     */
-    async createIndexStarships(): Promise<number> {
-        let itemCount: number = await this.starshipsRepository.createQueryBuilder().getCount()
-        return itemCount + 1;
     }
 
     /**

@@ -96,17 +96,9 @@ export class SpeciesService {
      * @returns created data
      */
     async createSpecie(newSpecie: CreateSpeciesDto) {
-        let index = await this.createIndexSpecies();
+        let index = await this.speciesRepository.count();
+        index++;
         return this.updateSpecies(index, newSpecie)
-    }
-
-    /**
-     * Create index for new entity by last id from database
-     * @returns new id for entity
-     */
-    async createIndexSpecies(): Promise<number> {
-        let itemCount: number = await this.speciesRepository.createQueryBuilder().getCount();
-        return itemCount + 1;
     }
 
     /**

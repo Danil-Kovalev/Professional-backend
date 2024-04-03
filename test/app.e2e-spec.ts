@@ -15,10 +15,39 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/films (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .get('/films')
+      .expect(401)
+  });
+
+  it('/people (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/people')
+      .expect(401)
+  });
+
+  it('/planets (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/planets')
+      .expect(401)
+  });
+
+  it('/species (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/species')
+      .expect(401)
+  });
+
+  it('/starships (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/starships')
+      .expect(401)
+  });
+
+  it('/vehicles (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/vehicles')
+      .expect(401)
   });
 });

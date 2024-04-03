@@ -6,7 +6,6 @@ import { UsersService } from '../users/users.service';
 import { Films } from './entity/films.entity';
 import { FilmsController } from './films.controller';
 import { JwtService } from '@nestjs/jwt';
-import { DataSource } from 'typeorm';
 
 
 @Module({

@@ -104,17 +104,9 @@ export class PeoplesService {
      * @returns created data
      */
     async createPeople(newPeople: CreatePeopleDto) {
-        let index = await this.createIndexPeople();
+        let index = await this.peopleRepository.count();
+        index++;
         return this.updatePeople(index, newPeople)
-    }
-
-    /**
-     * Create index for new entity by last id from database
-     * @returns new id for entity
-     */
-    async createIndexPeople(): Promise<number> {
-        let itemCount: number = await this.peopleRepository.createQueryBuilder().getCount();
-        return itemCount + 1;
     }
 
     /**
