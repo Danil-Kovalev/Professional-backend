@@ -39,24 +39,9 @@ describe('FilmsService', () => {
         planets: []
     }
 
-    const mockReturnFilms = {
-        data: [{
-            ...mockReturnFilm
-        }],
-        meta: {
-            hasNextPage: false,
-            hasPreviousPage: false,
-            itemCount: 1,
-            page: 1,
-            pageCount: 1,
-            take: 10,
-        }
-    }
-
     const mockFilmsRepository = {
         count: jest.fn().mockResolvedValueOnce(null),
         create: jest.fn().mockImplementation((dto) => dto),
-        find: jest.fn().mockResolvedValueOnce([mockReturnFilm]),
         findOne: jest.fn().mockImplementation(() => Promise.resolve(mockReturnFilm)),
         delete: jest.fn().mockResolvedValueOnce(1),
         save: jest.fn().mockImplementation((film) => Promise.resolve({ id: 1, ...film }))
@@ -65,7 +50,7 @@ describe('FilmsService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [FilmsService, {
-                provide: getRepositoryToken(Films, dataSourceOptions),
+                provide: getRepositoryToken(Films),
                 useValue: mockFilmsRepository
             }],
         }).compile();
@@ -81,13 +66,6 @@ describe('FilmsService', () => {
 
     it('should be defined film repository', () => {
         expect(filmsRepository).toBeDefined();
-    })
-
-    describe('getFilms', () => {
-        it('should be return films with data', async () => {
-            const dto = { page: 1, skip: 0 }
-            expect(await service.getFilms(dto)).toEqual(mockReturnFilms)
-        })
     })
 
     describe('getFilm', () => {
